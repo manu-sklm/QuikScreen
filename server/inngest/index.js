@@ -2,7 +2,7 @@ import { Inngest } from "inngest";
 import User from '../models/user.js';
 
 // Create a client to send and receive events
-export const inngest = new Inngest({ id: "movie-ticket-booking" });
+export const inngest = new Inngest({ id: "movie-ticket-booking"});
 
 
 // Inngest function to save user data to a database
@@ -12,13 +12,18 @@ const syncUserCreation = inngest.createFunction(
 
   async ({ event}) => {
     const {id,first_name,last_name,email_addresses,image_url}=event.data;
+
+    const emailFromPrimary = email_addresses?.[0]?.email_address;
+    const emailFromExternal = event.data.external_accounts?.[0]?.email_address;
+
     const userData={
        _id:id,
-       email:email_addresses[0].email_addresses,
+      email: emailFromPrimary || emailFromExternal || 'missing@example.com',
        name:first_name+' '+last_name,
        image:image_url
     }
-    console.log("User Data inserted")
+    console.log("User Data inserted");
+      logger.info("hi");
     await User.create(userData);
     
   },
@@ -35,11 +40,12 @@ const syncUserUpdation = inngest.createFunction(
     const {id,first_name,last_name,email_addresses,image_url}=event.data;
     const userData={
        _id:id,
-       email:email_addresses[0].email_addresses,
+       email:email_addresses[0].email_address,
        name:first_name+' '+last_name,
        image:image_url
     }
     console.log("User Data Updated")
+      logger.info("hi");
     await User.findByIdAndUpdate(userData);
     
   }
@@ -53,7 +59,11 @@ const syncUserDeletion = inngest.createFunction(
   async ({ event}) => {
    
     console.log("User  deleted")
+    logger.info("hi");
+
     await User.findByIdAndDelete(event.data.id);
+
+    return {message:"User Processed"};
     
   },
 );

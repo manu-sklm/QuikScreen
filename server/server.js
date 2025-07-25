@@ -29,13 +29,13 @@ app.use(clerkMiddleware())
 // Routes
 
 
-app.get('/',(req,res)=>{
-    res.send('server is Live..!');
-})
 
 
 // Set up the "/api/inngest" (recommended) routes with the serve handler
-app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use('/api/inngest', serve({ client: inngest, functions }));
+app.get('/',(req,res)=>{
+    res.send('server is Live..!');
+})
 
 app.listen(port,()=>{
     console.log(`Server listening at http://localhost:${port}`);
