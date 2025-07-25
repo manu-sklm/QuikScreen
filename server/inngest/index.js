@@ -13,12 +13,10 @@ const syncUserCreation = inngest.createFunction(
   async ({ event}) => {
     const {id,first_name,last_name,email_addresses,image_url}=event.data;
 
-    const emailFromPrimary = email_addresses?.[0]?.email_address;
-    const emailFromExternal = event.data.external_accounts?.[0]?.email_address;
 
     const userData={
        _id:id,
-      email: emailFromPrimary || emailFromExternal || 'missing@example.com',
+      email: email_addresses?.[0]?.email_address|| 'missing@example.com',
        name:first_name+' '+last_name,
        image:image_url
     }
@@ -40,7 +38,7 @@ const syncUserUpdation = inngest.createFunction(
     const {id,first_name,last_name,email_addresses,image_url}=event.data;
     const userData={
        _id:id,
-       email:email_addresses[0].email_address,
+        email: email_addresses?.[0]?.email_address|| 'missing@example.com',
        name:first_name+' '+last_name,
        image:image_url
     }
@@ -59,11 +57,10 @@ const syncUserDeletion = inngest.createFunction(
   async ({ event}) => {
    
     console.log("User  deleted")
- 
 
     await User.findByIdAndDelete(event.data.id);
 
-    return {message:"User Processed"};
+
     
   },
 );
