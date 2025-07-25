@@ -231,5 +231,3 @@ Use Inngest if:
 * You care about clean structure
 
 ---
-
-If you want, I can scaffold a real project using Clerk + Inngest (Next.js or Express). Let me know!
