@@ -23,7 +23,7 @@ const syncUserCreation = inngest.createFunction(
        image:image_url
     }
     console.log("User Data inserted");
-      logger.info("hi");
+    
     await User.create(userData);
     
   },
@@ -45,7 +45,7 @@ const syncUserUpdation = inngest.createFunction(
        image:image_url
     }
     console.log("User Data Updated")
-      logger.info("hi");
+    
     await User.findByIdAndUpdate(userData);
     
   }
@@ -59,7 +59,7 @@ const syncUserDeletion = inngest.createFunction(
   async ({ event}) => {
    
     console.log("User  deleted")
-    logger.info("hi");
+ 
 
     await User.findByIdAndDelete(event.data.id);
 
