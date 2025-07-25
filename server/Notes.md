@@ -249,3 +249,79 @@ By default, Mongoose removes empty objects from your document when saving it to 
 
 so ..if we want to save empty object also..you can use                                                                                                                                                                      
 >>>>>>> f64076610503bd7b43392acc80a07d897fe0da68
+
+
+
+# 9
+json.parse() --- json string to js object
+json.stringify() -- js object to json stringify
+
+controllers
+ sends json()
+ express strigifies into json
+ set the Content-Type header to application/json
+ sends over network in json format(send it as the HTTP response)
+
+# 10 what is controllers folder
+
+ **concise summary** that captures the concept of the `controllers` folder perfectly:
+
+✅ **What is the `controllers` folder?**
+
+* Contains files that **handle incoming HTTP requests**.
+* Holds the **business logic** (decides what to do when a request comes).
+* Sends back responses to the client after calling models/services.
+
+---
+
+🛠 **What files go inside?**
+
+* Usually JavaScript/TypeScript files grouped by resource or feature:
+
+  ```
+  controllers/
+    userController.js
+    productController.js
+    authController.js
+  ```
+* Each file **exports functions** like `registerUser`, `loginUser`, etc.
+
+---
+
+📦 **Example context (Node.js + Express):**
+
+* `routes/userRoutes.js` → defines the routes & maps them to controller functions.
+* `controllers/userController.js` → contains logic for each route.
+* `models/userModel.js` → defines DB schema.
+
+---
+
+⚡ **Key points about controller functions:**
+
+* Read request data (`req.body`, `req.params`, etc.)
+* Call models or services for DB operations.
+* Send response (`res.json()`, `res.send()`, etc.)
+
+---
+
+✅ **Purpose:**
+
+> Keeps your project **modular, organized, and easier to maintain** by separating route definitions from business logic.
+
+
+# 11 routes folder
+
+🌱 In summary:
+routes folder holds all route definitions, **grouped by resource.** 
+
+app.use('/api/users', userRoutes);
+all request like api/user/anything handles userRoutes
+
+Each file:
+
+Defines the URL paths & HTTP methods.
+
+Connects those paths to controller functions.
+
+Keeps your project organized, modular, and scalable.
+
