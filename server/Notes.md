@@ -232,4 +232,17 @@ Use Inngest if:
 
 ---
 
-If you want, I can scaffold a real project using Clerk + Inngest (Next.js or Express). Let me know!
+### 6 see how 2 hours got wasted  ---(Take a Way: Should push changes to github for every updation to reflex in realtime)
+i had bug in inngest function..which leads validation error if i see in runs in inngest dashboard
+then i eventually found it in 5 mins ...
+and then trid again ..but still got the same error. and it persisted 
+
+Thing is if we you did any updation or change in local file , you need to update the remote repo also (by pushing commits) as inngest deals with app hosted on github(vercel)
+
+
+### 7 when you ref:someModal , that type shoudl Object not String or something
+### 8 {minimize:false} 
+
+By default, Mongoose removes empty objects from your document when saving it to MongoDB.
+
+so ..if we want to save empty object also..you can use                                                                                                                                                                      
