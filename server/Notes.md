@@ -325,3 +325,38 @@ Connects those paths to controller functions.
 
 Keeps your project organized, modular, and scalable.
 
+## 12 mutliple Api calls pattern
+
+Sure! Here's a concise summary:
+
+---
+
+### 🔹 What it does:
+
+```js
+const [movieDetailsResponse, movieCreditsResponse] = await Promise.all([
+  axios.get(`https:something/${movieid}`),
+  axios.get(`https:something-else/${movieid}/credits`)
+]);
+
+* Runs **both API requests in parallel**. (if not time get's wasted as one waits )
+* `Promise.all()` waits for **all promises** to resolve.
+* `await` pauses until both are done.
+* Destructures results into `res1` and `res2`.
+
+---
+
+### 🔹 Why it's useful:
+
+* **Faster** than waiting for each request one after the other.
+* Ideal when requests are **independent** but you need **both results**.
+
+---
+
+You can access the actual data with:
+
+```js
+details.data      // actual movie details
+credits.data      // actual movie credits
+
+```
