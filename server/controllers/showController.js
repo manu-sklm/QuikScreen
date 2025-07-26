@@ -59,7 +59,7 @@ export const getNowPlayingMovies = async (req,res)=>{
                     poster_path:movieApiData.poster_path,
                     backdrop_path:movieApiData.backdrop_path,
                     genres:movieApiData.genres,
-                    casts:movieApiData.cast,
+                    casts:movieCreditsData.cast,
                     release_date:movieApiData.release_date,
                     original_language:movieApiData.original_langauge,
                     tagline:movieApiData.tagline || "",
@@ -81,7 +81,7 @@ export const getNowPlayingMovies = async (req,res)=>{
                 const showDate=show.date;
 
                 show.time.forEach((time)=>{
-                    const dataTimeString=`${showDate}T${time}`;
+                    const dateTimeString=`${showDate}T${time}`;
 
                     showsToCreate.push({
                         movie:movieId,
