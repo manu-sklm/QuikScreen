@@ -111,3 +111,37 @@ export const getNowPlayingMovies = async (req,res)=>{
 
     }
 }
+
+
+
+export const getShows=async (req,res,)=>{
+ 
+
+    try{    
+
+        const shows=await Show.find({showDateTime:{$gte:new Date()}}).populate('movie').sort({showDateTime:1}) //1 means -ascending order
+        const uniqueShows=new Set(shows.map(show=>show.movie))
+
+        res.json({success:true,shows:Array.from(uniqueShows)})
+           
+    } catch(error)
+    {
+        console.error(error);
+        res.json({success:false,message:error.message});
+
+    }   
+    
+
+
+
+}
+
+
+//Api to get a single show from the db
+
+export const getShow=async ()=>{
+    try{
+        const {movie}=req.params;
+         
+    }
+}
