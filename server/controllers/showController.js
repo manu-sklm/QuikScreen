@@ -31,11 +31,15 @@ export const getNowPlayingMovies = async (req,res)=>{
 
             let movie=await Movie.findById(movieId)
             console.log("add showcontroller called");
-             console.log(movie);
+            console.log(movieId,showInput,showPrice);
+
+    
 
 
             if(!movie){
                 //Fetch movie details and credits from TMDB API
+
+                console.log("no movie found in db");
                  const [movieDetailsResponse,movieCreditsResponse]=await Promise.all([
 
                                 axios.get(`https://api.themoviedb.org/3/movie/${movieId}`,{
