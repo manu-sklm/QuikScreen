@@ -7,6 +7,7 @@ import { clerkMiddleware } from '@clerk/express'
 import { serve } from "inngest/express";
 import { inngest, functions } from "./inngest/index.js"
 import showRouter from './routes/showRouter.js';
+import bookingRouter from './routes/bookingRouter.js';
 
 const app=express();
 const port=3000;
@@ -31,6 +32,7 @@ app.use('/api/inngest', serve({ client: inngest, functions }));
 //instead having multiple routes with same base url(/api/show) like /api/show/now-playing ,api/show/something etc all in this server file...
 // we created a separate Router that routes And Handles all requests that starts with base url..
 app.use('/api/show',showRouter); 
+app.use('/api/booking',bookingRouter); 
 
 app.listen(port,()=>{
     console.log(`Server listening at http://localhost:${port}`);

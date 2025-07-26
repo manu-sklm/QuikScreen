@@ -1,10 +1,15 @@
 import express from 'express'
-import { addShow, getNowPlayingMovies } from '../controllers/showController.js';
+import { addShow, getNowPlayingMovies, getShow, getShows } from '../controllers/showController.js';
+import { protectAdmin } from '../middlewares/auth.js';
 
 const showRouter = express.Router();
 
 
 showRouter.get('/now-playing',getNowPlayingMovies)  // this getNowPlaying func takes req,res as params ...response recieved at other end route
 
+//add protectAdmin
 showRouter.post('/add',addShow) 
+showRouter.get('/all',getShows);
+showRouter.get('/:movieId',getShow);
+
 export default showRouter;

@@ -360,3 +360,86 @@ details.data      // actual movie details
 credits.data      // actual movie credits
 
 ```
+## 13 `showData.markModified('occupiedSeats')
+
+
+✅ **What:**
+`showData.markModified('occupiedSeats')` is used in **Mongoose** to tell it that the `occupiedSeats` field (an array) was changed.
+
+---
+
+⚙️ **Why:**
+When you **mutate** the array directly:
+
+```js
+showData.occupiedSeats.push('A5');
+```
+
+Mongoose may **not detect** the change because the reference to the array didn’t change.
+
+---
+
+✅ **So you do:**
+
+```js
+showData.markModified('occupiedSeats');
+await showData.save();
+```
+
+to make sure the new seat is saved.
+
+---
+
+💡 **You don’t need it** if you replace the whole array:
+
+```js
+showData.occupiedSeats = [...showData.occupiedSeats, 'A5'];
+await showData.save(); // no need for markModified
+```
+
+---
+
+**In short:**
+
+> `.markModified('occupiedSeats')` is needed when you *change the array by push/pop* so Mongoose knows to save it.
+
+
+## 14 deep population or nested population
+
+#### ✏️ Breaking down your example
+
+```js
+.populate('user')
+.populate({
+  path: 'show',
+  populate: { path: 'movie' }
+})
+```
+
+Let’s say you have a model `Booking` with:
+
+* `user` field referencing `User` model.
+* `show` field referencing `Show` model.
+  And then, `Show` model itself has:
+* `movie` field referencing `Movie` model.
+
+##### Step by step:
+
+1. **`.populate('user')`**
+   Replaces the `user` ObjectId in the `Booking` document with the full `User` document.
+
+2. **`.populate({ path: 'show', populate: { path: 'movie' } })`**
+
+   * `populate({ path: 'show' })`: replaces the `show` ObjectId with the full `Show` document.
+   * The inner `populate: { path: 'movie' }`: inside that `Show` document, the `movie` ObjectId is again populated with the full `Movie` document.
+
+This is called **deep population** or **nested population**.
+
+---
+
+#### 🧠 Quick recap:
+
+* `populate()` replaces an ObjectId field in your document with the actual referenced document(s).
+* You can use it multiple times to populate multiple fields.
+* With nested `populate`, you can go as deep as needed into related documents.
+* Options help filter, sort, select fields, or override model.
