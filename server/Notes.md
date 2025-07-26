@@ -443,3 +443,60 @@ This is called **deep population** or **nested population**.
 * You can use it multiple times to populate multiple fields.
 * With nested `populate`, you can go as deep as needed into related documents.
 * Options help filter, sort, select fields, or override model.
+
+
+
+## 15  ⚠ **Then why do we get OverwriteModelError?**
+
+
+---
+
+## ✅ **Should we import `User.js` (or other models) in multiple files?**
+
+* ✔ **Yes!**
+
+  * It’s **normal and good practice** to import the same model into:
+
+    * Controllers
+    * Services
+    * Seed scripts
+    * Utilities
+    * Tests, etc.
+* Modern Node.js / Express / MERN apps do this all the time.
+
+---
+
+## ⚠ **Then why do we get OverwriteModelError?**
+
+* Mongoose **doesn’t allow** redefining the same model name (`"User"`) more than once in the same process.
+* This can happen when:
+
+  * Using nodemon / hot reload
+  * Importing the same model file from multiple places
+* Because each import runs:
+
+  ```js
+  mongoose.model("User", userSchema);
+  ```
+
+  again.
+
+---
+
+## 🛠 **Clean fix:**
+
+Use the **safe pattern** in every model file:
+
+```js
+const User = mongoose.models.User || mongoose.model("User", userSchema);
+```
+
+* ✅ If the model `"User"` already exists → reuse it.
+* ✅ If not → create it.
+
+Do the same for other models:
+
+```js
+const Show = mongoose.models.Show || mongoose.model("Show", showSchema);
+const Movie = mongoose.models.Movie || mongoose.model("Movie", movieSchema);
+```

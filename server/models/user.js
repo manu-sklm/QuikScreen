@@ -8,6 +8,6 @@ const userSchema = new mongoose.Schema({
 
 });
 
-const User = mongoose.model("User",userSchema)
-
+// ✅ only create if not already created  
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;
