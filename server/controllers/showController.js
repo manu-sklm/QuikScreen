@@ -11,6 +11,9 @@ export const getNowPlayingMovies = async (req,res)=>{
             })
 
             const movies=data.results;
+
+            console.log("now playing controller called");
+
             res.json({success:true,movies:movies})
     }catch(error)
     {
@@ -27,16 +30,18 @@ export const getNowPlayingMovies = async (req,res)=>{
             const { movieId,showInput,showPrice } =req.body;
 
             let movie=await Movie.findById(movieId)
+            console.log("add showcontroller called");
+             console.log(movie);
+
 
             if(!movie){
                 //Fetch movie details and credits from TMDB API
-
                  const [movieDetailsResponse,movieCreditsResponse]=await Promise.all([
 
-                                axios.get(`https://api.themoviedb.org/3/movie/$movieId}`,{
+                                axios.get(`https://api.themoviedb.org/3/movie/${movieId}`,{
                                      headers:{Authorization:`Bearer ${process.env.TMDB_API_KEY}`}}),
                                 
-                                axios.get(`https://api.themoviedb.org/3/movie/$movieId}/credits`,{
+                                axios.get(`https://api.themoviedb.org/3/movie/${movieId}/credits`,{
                                 headers:{Authorization:`Bearer ${process.env.TMDB_API_KEY}`}})
            
                              ]);
@@ -44,6 +49,8 @@ export const getNowPlayingMovies = async (req,res)=>{
                  
                 const movieApiData=movieDetailsResponse.data;
                 const movieCreditsData=movieCreditsResponse.data;
+
+
                  
                 const movieDetails={
                     _id:movieId,
