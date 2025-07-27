@@ -1,5 +1,5 @@
 import Navbar from './components/Navbar'
-import { Route, Routes,useLocation } from 'react-router-dom'
+import { Route, Routes,useLocation, useNavigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Movies from './pages/Movies'
 import Favorites from './pages/Favorites'
@@ -18,8 +18,61 @@ import Addshows from './pages/admin/AddShows'
 import ListBookings from './pages/admin/ListBookings'
 import ListShows from './pages/admin/ListShows'
 
+
+
+import { useEffect } from 'react'
+import { useUser,useAuth, SignUp } from '@clerk/clerk-react'
+import {useDispatch,useSelector} from 'react-redux';
+import {setUser,setToken,fetchIsAdmin} from './redux/authSlice';
+import toast from 'react-hot-toast'
+
 const App = () => {
   const isAdminRoute=useLocation().pathname.startsWith('/admin');
+
+
+  const {user}=useUser();
+  const {getToken}=useAuth();
+  const dispatch=useDispatch();
+  const {isAdmin}=useSelector((state)=>state.auth);
+  const navigate=useNavigate();
+
+
+  const initAuth=async()=>{
+
+    if(user)
+    {
+      dispatch(setUser(user));
+
+      const token= await getToken();
+      dispatch(setToken(token));
+
+      dispatch(fetchIsAdmin()); //checks and sets isAdmin in redux store
+
+
+    }
+  
+  }
+
+
+  // both useEffects runs just after first render(added in queue one by one) but isAdmin is intialy null..know:topics react-cycle,rendering useEffects etc
+  useEffect(()=>{
+    
+     initAuth();
+
+  },[user,getToken,dispatch]);
+
+  useEffect(()=>{
+       //use changed !isAdmin to isAdmin===false , for reason know:react-life-cycle 
+      //  if(isAdminRoute && isAdmin===false){
+      //   navigate('/');// Redirect to home if not admin
+      // }
+  
+  },[isAdmin,isAdminRoute,navigate] ); //not need to add navigate for get rid of lit warnnig
+
+
+
+
+
   
   return (
     <>
@@ -41,9 +94,14 @@ const App = () => {
         <Route path='/releases' element={<Movies/>} />
         <Route path='/favorites' element={<Dummy/>} />
 
-
-         
-         <Route path='/admin' element={<Layout />}>
+        
+         <Route path='/admin' element={ user ? <Layout /> : 
+                  <div className='flex justify-center items-center min-h-screen'>
+                      <SignUp/>
+                  </div>
+                    
+                       
+                       }>
               <Route index element={<Dashboard />} />
               <Route path='add-shows' element={<Addshows />} /> 
               <Route path='list-shows' element={<ListShows />} />
