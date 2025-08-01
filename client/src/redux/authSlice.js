@@ -10,11 +10,9 @@ const initialState = {
 }
 
 export const fetchIsAdmin = createAsyncThunk('auth/fetchIsAdmin' ,async(_,{getState,rejectWithValue})=>{
-    console.log()
     try{
         const token=getState().auth.token;
         const res= await checkIsAdmin(token);
-          console.log(res);
         
         return res.isAdmin;
     }catch(error)
@@ -22,7 +20,7 @@ export const fetchIsAdmin = createAsyncThunk('auth/fetchIsAdmin' ,async(_,{getSt
         return rejectWithValue(error.response?.data?.message || error.message);
     }
 
-})
+});
 
 
 

@@ -4,30 +4,31 @@ import { useState,useEffect } from 'react';
 import { dummyBookingData } from '../../assets/assets';
 import Loader from '../../components/Loader';
 import dateTimeFormat from '../../../lib/dateTimeFormat';
-import Title from '../../components/admin/Title'
+import Title from '../../components/admin/Title';
 
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchBookings } from '../../redux/adminSlice';
 const ListBookings = () => {
    
+ 
+    const {user} =useSelector((state)=>state.auth);
+    const {loading,error,bookings} =useSelector((state)=>state.admin);
+    const dispatch=useDispatch();
 
-    const [shows,setShows]=useState([]);
-    const [isLoading,setIsLoading]=useState(true);
-  
+
     
     const currency= import.meta.env.VITE_CURRENCY
   
-    const getAllBookings= ()=>{
-
-        setShows(dummyBookingData);
-        setIsLoading(false);
-  
-    }
+   
   
     useEffect(()=>{
-      getAllBookings();
-    },[]);
+      if(user)
+      dispatch(fetchBookings());
+    },[user]);
 
-  
-  return !isLoading?(
+  if(error) return toast.error(error)  
+  if(loading) <Loader/>
+  return  (
 
 
     <div>
@@ -54,7 +55,7 @@ const ListBookings = () => {
 
            <tbody>
             {
-              shows.map((show,index)=>(
+              bookings.map((show,index)=>(
 
 
              
@@ -75,14 +76,20 @@ const ListBookings = () => {
 
 
 
-
+         
 
 
            </table>
+            {bookings.length===0&&
+              <div className='flex items-center justify-center w-full min-h-[50vh]'>
+                <p className='text-gray-400 font-semibold text-xl'>No bookings !</p>
+                      
+              </div>
+          }
         </div>
     </div>
     
-  ):<Loader/>
+  )
 }
 
 export default ListBookings

@@ -5,20 +5,23 @@ import Show from '../models/Show.js';
 
 
 export const getNowPlayingMovies = async (req,res)=>{
+
+
     try{
+
+
             const {data}=await axios.get('https://api.themoviedb.org/3/movie/now_playing',{
                 headers:{Authorization:`Bearer ${process.env.TMDB_API_KEY}`}
             })
 
             const movies=data.results;
 
-            console.log("now playing controller called");
+            console.log("nowPlaying controller called..!");
 
             res.json({success:true,movies:movies})
     }catch(error)
     {
-
-        console.error(error);
+       
         res.json({success:false,message:error.message})
 
     }
@@ -80,6 +83,10 @@ export const getNowPlayingMovies = async (req,res)=>{
             }
 
             const showsToCreate=[];
+
+
+
+            /// if we used flat map in frontend while sending payload....then:show.time.forEach(...)
 
             showInput.forEach((show)=>{
                 const showDate=show.date;

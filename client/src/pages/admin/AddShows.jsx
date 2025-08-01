@@ -8,17 +8,26 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css"; // import default styles
 import { DeleteIcon } from 'lucide-react'
 
-
+import { useSelector,useDispatch } from 'react-redux'
+import { fetchNowMovies,addShow } from '../../redux/showSlice'
+import toast from 'react-hot-toast'
 const Addshows = () => {
  
   const currency =import.meta.env.VITE_CURRENCY
-  const [nowPlayingMovies,setNowPlayingMovies]=useState([]);
+
+  const dispatch = useDispatch();
+  const { loading,addShowLoading, error, nowPlayingMovies } = useSelector((state) => state.show);
+  const { user } = useSelector((state) => state.auth);
+
+
+
   const [selectedMovie,setSelectedMovie]=useState(null);
   const [dateTimeSelection,setDateTimeSelection]=useState({});
   const [dateTimeInput,setDateTimeInput]=useState("");
   const [showPrice,setShowPrice]=useState("");
    
- 
+  
+
   
    const handleDateTimeAdd=()=>{
 
@@ -35,7 +44,7 @@ const Addshows = () => {
           const times = prev[date] || [];
           console.log("Existing Times for this Date:", times);
 
-          if (!times.includes(time)) {
+          if (!times.includes(time)){
 
             const updated = {
               ...prev,
@@ -53,7 +62,6 @@ const Addshows = () => {
 
    const handleDateTimeRemove=(date,time)=>
    {
-
           setDateTimeSelection((prev)=>{
 
               const filteredTimes=  prev[date].filter((t)=>t!==time);
@@ -70,20 +78,53 @@ const Addshows = () => {
 
           })
   }
-  
+   
 
   const handleAddShow=()=>{
-    console.log("add show clicked");
-  }
+
+    console.log("handle submit clicked...!")
+    console.log("addShowloading",addShowLoading);  
 
 
-  const fetchShowData=()=>{
-    setNowPlayingMovies(dummyShowsData);
+    if(!selectedMovie||!showPrice || Object.keys(dateTimeSelection).length===0)
+    {
+      
+      return toast("Missing required fileds !");
+    }
+
+    const payload={
+      movieId:selectedMovie,  
+                                           //this convert data into: { date, time: times }
+      showInput:Object.entries(dateTimeSelection).map(([date,time])=>({date,time})),
+      showPrice:Number(showPrice)
+    }
+
+    dispatch(addShow(payload))
+            .unwrap() 
+            .then(()=>{
+              toast.success("Show added !");
+              setShowPrice("");
+              setDateTimeSelection({});
+              setDateTimeInput("");
+              setSelectedMovie(null);
+
+            })
+            .catch((error)=>{
+              toast.error("Failed to add show "+error)
+            })
+            
+    
   }
+
 
   useEffect(()=>{
-    fetchShowData();
-  })
+    if(user)
+    {
+     dispatch(fetchNowMovies())
+    }
+  },[user])
+
+  if(loading)  return <Loader/>
 
   return nowPlayingMovies.length>0 ? (
     <div>
@@ -142,7 +183,7 @@ const Addshows = () => {
               <div className="my-6">
 
                 <h2 className='text-sm font-medium mb-2'>Selected Date and Time</h2>
-
+                
                 <ul className='space-y-3'>
 
                    {Object.entries(dateTimeSelection).map(([date,times])=>(
@@ -172,7 +213,7 @@ const Addshows = () => {
 
 
 
-         <button onClick={handleAddShow} className='px-8 py-2 bg-primary hover:bg-primary-dull rounded-lg text-white transition cursor-pointer'>Add Show</button>
+         <button onClick={handleAddShow} disabled={addShowLoading} className='px-8 py-2 bg-primary hover:bg-primary-dull rounded-lg text-white transition cursor-pointer'>Add Show</button>
 
 
 
@@ -219,7 +260,10 @@ const Addshows = () => {
           
      
     </div>
-  ):<Loader/>
+  ):<div className='min-h-[20vh] flex items-center justify-center'>
+       <h1 className='text-gray-400 text-2xl font-bold'>No Shows Added</h1>
+
+  </div>
 }
 
 export default Addshows

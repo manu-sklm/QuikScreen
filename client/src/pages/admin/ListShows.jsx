@@ -3,50 +3,32 @@ import Title from '../../components/admin/Title'
 import { dummyShowsData } from '../../assets/assets';
 import Loader from '../../components/Loader';
 import dateTimeFormat from '../../../lib/dateTimeFormat';
+
+import { useDispatch,useSelector } from 'react-redux';
+
+import { fetchListOfShows } from '../../redux/adminSlice';
+
 const ListShows = () => {
 
-  const [shows,setShows]=useState([]);
-  const [isLoading,setIsLoading]=useState(true);
-
+  const {user}=useSelector((state)=>state.auth);  
+  const {loading,error,showsList}=useSelector((state)=>state.admin);
   
+  const dispatch=useDispatch();
   const currency= import.meta.env.VITE_CURRENCY
 
-  const getAllShows= async ()=>{
-
-    try{
-
-      setShows([
-        {
-          movie:dummyShowsData[0],
-             showDateTime: "2025-06-30T02:30:00.000Z",
-            showPrice: 59,
-            occupiedSeats: {
-                A1: "user_1",
-                B1: "user_2",
-                C1: "user_3"
-            }
-        }]);
-
-        setIsLoading(false);
-
-    } catch(error){
-      console.error(error);
-    }
-    
-  }
 
   useEffect(()=>{
-
-    getAllShows();
-
-
-  },[]);
+    if(user){
+    dispatch(fetchListOfShows())
+      
+    }
+  },[user]);
    
-
-  return !isLoading ? (
+  if(loading) return <Loader/>
+  return  (
     <div>
         <Title text1={"List"} text2={"Shows"}/>
-        {console.log(shows)}
+        {console.log(showsList)}
 
         <div className='max-w-4xl mt-6 overflow-x-auto'>
 
@@ -66,7 +48,7 @@ const ListShows = () => {
 
            <tbody>
             {
-              shows.map((show,index)=>(
+              showsList.map((show,index)=>(
 
 
              
@@ -88,7 +70,7 @@ const ListShows = () => {
            </table>
         </div>
     </div>
-  ) :<Loader/>
+  )
 }
 
 export default ListShows

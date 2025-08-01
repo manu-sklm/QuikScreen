@@ -500,3 +500,249 @@ Do the same for other models:
 const Show = mongoose.models.Show || mongoose.model("Show", showSchema);
 const Movie = mongoose.models.Movie || mongoose.model("Movie", movieSchema);
 ```
+
+
+## 16 The Two useEffects
+
+ Let’s **draw a clean timeline** showing how both `useEffect`s run, when, and why —
+and how state updates and re-renders fit in.
+
+I’ll write it like a **visual timeline** with clear labels so you can see exactly:
+✅ when each `useEffect` is *scheduled*
+✅ when each `dispatch` happens
+✅ when state changes cause re-render
+✅ when `useEffect`s run again
+
+---
+
+### 🧪 **Your code (simplified):**
+
+```jsx
+useEffect(() => { initAuth(); }, [user, getToken, dispatch]);
+useEffect(() => {
+   if (isAdminRoute && isAdmin===false) { navigate('/'); }
+}, [isAdmin, isAdminRoute, navigate]);
+```
+
+Initial state:
+
+* `user` = undefined
+* `isAdmin` = null
+
+---
+
+### 🕰 **Timeline diagram:**
+
+```
+Time →
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        INITIAL RENDER                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+    | user = undefined
+    | isAdmin = null
+    | 
+    | ┌───────────────┐
+    | | React renders |  
+    | └───────────────┘
+    |
+    | Schedules:
+    |   useEffect#1 ([user, getToken, dispatch])
+    |   useEffect#2 ([isAdmin, isAdminRoute, navigate])
+    |
+    | user is still undefined → initAuth() does nothing
+
+───────────────────────────────────────────────────────────────────────────────
+
+Clerk loads user → user changes from undefined → actual user
+    |
+    | Causes re-render:
+    |   user changed → triggers useEffect#1 again
+    |
+    | useEffect#1 runs:
+    |   ├─ dispatch(setUser(user))      (Redux store: user updated)
+    |   ├─ await getToken()
+    |   ├─ dispatch(setToken(token))    (Redux store: token updated)
+    |   └─ dispatch(fetchIsAdmin())    (starts async request)
+    |
+    | logs:
+    |   "in 1st use Effect" (isAdmin is still null)
+    |   "in 1st use Effect end" (isAdmin is still null)
+
+───────────────────────────────────────────────────────────────────────────────
+
+fetchIsAdmin() resolves → sets isAdmin = true/false in Redux
+    |
+    | Causes re-render:
+    |   isAdmin changed → triggers useEffect#2
+    |
+    | useEffect#2 runs:
+    |   ├─ logs "in 2nd useEffect", isAdmin
+    |   ├─ if (isAdminRoute && isAdmin===false) → maybe navigate('/')
+    |   └─ logs "in 2nd useEffect after everything", isAdmin
+
+───────────────────────────────────────────────────────────────────────────────
+
+After that:
+- useEffect#1 does NOT run again because user didn't change
+- useEffect#2 will run again **only** if isAdmin, isAdminRoute or navigate change
+```
+
+---
+
+### ✅ **In words:**
+
+* Both useEffects are scheduled **after first render**.
+* `useEffect#1` depends on `user` → runs when `user` changes.
+* `useEffect#2` depends on `isAdmin` → runs when `isAdmin` changes.
+* `dispatch` updates store → store updates cause re-render → re-render re-evaluates deps → triggers relevant useEffects.
+
+---
+
+### 🧠 **Important:**
+
+* `dispatch` itself doesn’t directly “call” useEffect.
+* But dispatch updates Redux → Redux state change → triggers re-render → on re-render React checks dependencies → runs useEffect if needed.
+
+---
+
+
+
+## 17 
+Excellent question! Let’s clear this up very *deeply*, step by step, so you understand **what actually triggers re-render** and what doesn’t.
+Here’s the truth based on how React + Redux work:
+
+---
+
+### 🧩 **Dispatch vs re-render: what really happens**
+
+#### ✅ What *always* happens when you call `dispatch(...)`:
+
+* Redux store updates its internal state.
+* Subscribers to the store get notified that state *might* have changed.
+
+---
+
+#### ❗ **But React components only re-render if:**
+
+* The piece of state **used in your component actually changes**.
+* That is, your `useSelector` hook *sees* that the value it selected is different (using strict equality).
+
+If the selected value doesn't change (new value === previous value), **React won’t re-render**.
+This is an optimization to avoid unnecessary renders.
+
+---
+
+### 🧪 **In your code specifically:**
+
+```js
+dispatch(setUser(user));
+dispatch(setToken(token));
+dispatch(fetchIsAdmin());
+```
+
+1️⃣ `dispatch(setUser(user))`
+
+* Updates `state.auth.user` to `user`.
+* Your App component doesn’t directly *use* `user` (except to start `initAuth`).
+* So this dispatch alone won't force App to re-render *unless* there’s a `useSelector` selecting `user` somewhere in the component tree.
+
+---
+
+2️⃣ `dispatch(setToken(token))`
+
+* Similar: updates `state.auth.token`.
+* Again, React components that read `token` with `useSelector` will re-render, but others won’t.
+
+---
+
+3️⃣ `dispatch(fetchIsAdmin())`
+
+* This is a thunk:
+
+  * It makes an async API call.
+  * On success, it dispatches an *internal action* like `fetchIsAdmin.fulfilled`.
+  * That action updates `state.auth.isAdmin`.
+* Because your App component *does* have:
+
+  ```js
+  const { isAdmin } = useSelector(state => state.auth);
+  ```
+
+  → React sees `isAdmin` went from `null` → `true/false` → triggers re-render.
+
+---
+
+### ⚡ **So why doesn’t dispatch(setUser(user)) cause a re-render of second useEffect?**
+
+Because your second `useEffect` depends on:
+
+```js
+[isAdmin, isAdminRoute, navigate]
+```
+
+And `isAdmin` is not changed yet by `setUser` dispatch.
+Only after `fetchIsAdmin` updates `isAdmin` → React sees it changed → runs useEffect again.
+
+---
+
+### 🔁 **Do multiple dispatches mean multiple triggers?**
+
+Not necessarily:
+
+* Dispatch always *notifies* subscribers.
+* But re-render only happens if:
+
+  * Your `useSelector` picks a value that *actually changed*.
+* So if you dispatch multiple actions that change unrelated state, React might do:
+
+  * 1 render if batching works.
+  * Or sometimes multiple renders (rare, but possible in strict mode).
+
+In practice, React-Redux is smart & often batches them → single render.
+
+---
+
+### 📊 **Timeline recap with multiple dispatches:**
+
+```plaintext
+dispatch(setUser(user)) → updates state.auth.user → doesn't affect isAdmin → no re-render of App
+
+dispatch(setToken(token)) → updates state.auth.token → no effect on isAdmin → no re-render
+
+dispatch(fetchIsAdmin()) → eventually updates state.auth.isAdmin → triggers re-render → useEffect runs
+```
+
+---
+
+### ✅ **Conclusion:**
+
+* Dispatch always updates store.
+* Component only re-renders when a *selected* part of state actually changes.
+* Multiple dispatches don't necessarily mean multiple renders.
+* UseSelector is the key: only what you select matters.
+
+
+
+### 18 
+
+```js
+ useEffect(()=>{
+     dispatch(fetchNowMovies())
+  },[])
+
+```
+
+Problem:
+By adding nowPlayingMovies in the dependency array,
+
+every time the nowPlayingMovies state changes (which happens as soon as the fetch action updates it),
+
+the useEffect runs again, calling dispatch(fetchNowMovies()) again,
+
+which updates nowPlayingMovies again,
+
+and this cycle repeats → infinite or repeated API calls.
+
+Soluton: Remove that nowPlayingMovies in the dep array....
+You usually want to fetch data once when the component mounts.
+So, you should provide an empty dependency array []:

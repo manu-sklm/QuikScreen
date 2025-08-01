@@ -1,7 +1,9 @@
 import React from 'react'
 import { CheckIcon, StarIcon } from 'lucide-react'
 import voteFormat from '../../../lib/voteFormat'
+import { image_base_url } from '../../config/constants'
 const ShowCard = ({show,selectedMovie,setSelectedMovie}) => {
+
 
 
   
@@ -23,7 +25,7 @@ const ShowCard = ({show,selectedMovie,setSelectedMovie}) => {
    
     <div className='group-hover:not-hover:opacity-40 transition duration-300 hover:-translate-y-1 hover:brightness-100 cursor-pointer'>
         <div  className='relative w-40 rounded-lg  overflow-hidden ' onClick={selectingMovie}>
-            <img src={show.poster_path} alt='' className='h-full w-full object-cover  brightness-90 '/>
+            <img src={image_base_url+show.poster_path} alt='' className='h-full w-full object-cover  brightness-90 '/>
             <div className='absolute bottom-0 w-full flex justify-between items-center px-1 py-2 bg-black/60 rounded-b-lg text-sm'>
                           <div className='flex items-center justify-center gap-1 text-sm text-gray-400'><StarIcon className='size-4 fill-primary text-primary'/>{show.vote_average.toFixed(1)}</div>
                           <p >{voteFormat(show.vote_count)} votes</p>

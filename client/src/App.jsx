@@ -25,6 +25,7 @@ import { useUser,useAuth, SignUp } from '@clerk/clerk-react'
 import {useDispatch,useSelector} from 'react-redux';
 import {setUser,setToken,fetchIsAdmin} from './redux/authSlice';
 import toast from 'react-hot-toast'
+import Dashboard2 from './pages/admin/Dashboard2'
 
 const App = () => {
   const isAdminRoute=useLocation().pathname.startsWith('/admin');
@@ -61,13 +62,13 @@ const App = () => {
 
   },[user,getToken,dispatch]);
 
-  useEffect(()=>{
-       //use changed !isAdmin to isAdmin===false , for reason know:react-life-cycle 
-      //  if(isAdminRoute && isAdmin===false){
-      //   navigate('/');// Redirect to home if not admin
-      // }
+  // useEffect(()=>{
+  //      //use changed !isAdmin to isAdmin===false , for reason know:react-life-cycle 
+  //     //  if(isAdminRoute && isAdmin===false){
+  //     //   navigate('/');// Redirect to home if not admin
+  //     // }
   
-  },[isAdmin,isAdminRoute,navigate] ); //not need to add navigate for get rid of lit warnnig
+  // },[isAdmin,isAdminRoute,navigate] ); //not need to add navigate for get rid of lit warnnig
 
 
 
@@ -98,10 +99,8 @@ const App = () => {
          <Route path='/admin' element={ user ? <Layout /> : 
                   <div className='flex justify-center items-center min-h-screen'>
                       <SignUp/>
-                  </div>
-                    
-                       
-                       }>
+                  </div>}
+             >                            
               <Route index element={<Dashboard />} />
               <Route path='add-shows' element={<Addshows />} /> 
               <Route path='list-shows' element={<ListShows />} />
