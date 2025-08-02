@@ -4,18 +4,13 @@ import BlurCircle from "../components/BlurCircle"
 import MovieCard from "../components/MovieCard"
 import { useEffect } from "react"
 
-import { useSelector,useDispatch } from 'react-redux'
-import { fetchFavorites } from '../redux/userSlice'
+import { useSelector } from 'react-redux'
 import Loader from "../components/Loader"
 const Favorites = () => {
    
-  const dispatch=useDispatch();
-  const {user}=useSelector((state)=>state.admin)
   const {loading,error,favorites}=useSelector((state)=>state.user)
 
-  useEffect(()=>{
-    dispatch(fetchFavorites());
-  },[])
+ 
 
   if(loading) <Loader/>
   

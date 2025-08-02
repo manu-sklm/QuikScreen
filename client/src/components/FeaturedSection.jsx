@@ -4,14 +4,15 @@ import { useNavigate } from 'react-router-dom'
 import BlurCircle from './BlurCircle'
 
 import { useSelector } from 'react-redux'
+import Loader from './Loader'
 const FeaturedSection = () => {
 
     const navigate=useNavigate();
 
-    const {shows}=useSelector((state)=>state.show)
+    const {shows,loading}=useSelector((state)=>state.show)
 
-
-  return (
+  
+  return !loading ? (
     <div className=' xl:px-44 lg:px-24 md:px-16 px-6  overflow-hidden'>
 
         <div className=' relative flex justify-between items-center pt-20 pb-10 '>
@@ -39,7 +40,7 @@ const FeaturedSection = () => {
          </div>
     
     </div>
-  )
+  ):<Loader/>
 }
 
 export default FeaturedSection

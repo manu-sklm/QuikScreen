@@ -9,3 +9,14 @@ export const getFavorites=async(token)=>{
         
         return res.data;
 }
+
+
+
+export const updateFavorite=async(movieId,token)=>{
+     
+        const res = await api.post('api/user/update-favorite',{movieId}, {
+            headers:{ Authorization:`Bearer ${token}` }
+        })
+        
+        return res.data;
+}

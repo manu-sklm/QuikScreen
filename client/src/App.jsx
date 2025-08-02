@@ -28,6 +28,7 @@ import {fetchAllShows} from './redux/showSlice';
 
 
 import toast from 'react-hot-toast'
+import { fetchFavorites } from './redux/userSlice'
 
 const App = () => {
   const isAdminRoute=useLocation().pathname.startsWith('/admin');
@@ -51,6 +52,7 @@ const App = () => {
 
       dispatch(fetchIsAdmin()); //checks and sets isAdmin in redux store
       dispatch(fetchAllShows());
+      dispatch(fetchFavorites());
 
     }
   

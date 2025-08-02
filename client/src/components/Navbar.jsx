@@ -6,12 +6,17 @@ import { assets } from '../assets/assets'
 import {MenuIcon, SearchIcon, TicketCheck, TicketIcon, TicketPlus, User, XIcon} from "lucide-react"
 
 import {UserButton, useClerk,useUser} from '@clerk/clerk-react'
+
+import { useSelector } from 'react-redux'
 const Navbar = () => {
 
   const [isOpen,setisOpen]=useState();
   const navigate=useNavigate();
   const {user} =useUser();
   const {openSignIn}=useClerk();
+
+  const {favorites}=useSelector((state)=>state.user);
+
   return (
     <div className='fixed top-0 left-0   z-50 flex justify-between items-center w-full px-6 md:px-16 lg:px-36 py-5'>
 
@@ -27,7 +32,12 @@ const Navbar = () => {
           <Link onClick={()=>{scrollTo(0,0); setisOpen(false)}} to="/movies">Movies</Link>
           <Link onClick={()=>{scrollTo(0,0); setisOpen(false)}} to="/theaters">Theaters</Link>
           <Link onClick={()=>{scrollTo(0,0); setisOpen(false)}} to="/releases">Releases</Link>
-          <Link onClick={()=>{scrollTo(0,0); setisOpen(false)}} to="/favorites">Favorite</Link>
+
+          
+          {
+        
+             favorites.length>0 && <Link onClick={()=>{scrollTo(0,0); setisOpen(false)}} to="/favorites">Favorite</Link>
+          }
 
         </div>
 

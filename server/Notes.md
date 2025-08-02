@@ -723,7 +723,7 @@ dispatch(fetchIsAdmin()) → eventually updates state.auth.isAdmin → triggers 
 
 
 
-### 18 
+## 18 
 
 ```js
  useEffect(()=>{
@@ -746,3 +746,12 @@ and this cycle repeats → infinite or repeated API calls.
 Soluton: Remove that nowPlayingMovies in the dep array....
 You usually want to fetch data once when the component mounts.
 So, you should provide an empty dependency array []:
+
+
+
+## 19 can't read the properties of undefined [Error handling]
+
+ if (!show || !show.movie) return null;   //is correct to add before returning jsx
+  
+
+  // don't we  just "show" tp check ex: return show ? () ..because empty {} is truthy

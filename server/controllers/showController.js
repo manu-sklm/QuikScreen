@@ -148,6 +148,8 @@ export const getShows=async (req,res,)=>{
 
 export const getShow=async (req,res)=>{
     try{
+
+        console.log("enetred getShow..");
         const {movieId}=req.params;
         const shows=await Show.find({movie:movieId,showDateTime:{$gte:new Date()}})
 

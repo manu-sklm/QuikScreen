@@ -37,22 +37,36 @@ export const updateFavorite=async(req,res)=>{
         const userId=req.auth().userId;
 
         const user=await clerkClient.users.getUser(userId)
+        let favorites = user.privateMetadata.favorites || [];
+     
+        let msg='';
+          // Toggle favorite
+        if (!favorites.includes(movieId)) {
+           favorites.push(movieId);
+           msg="Favorite Added successfully !"
+        } else {
 
-        if(!user.privateMetadata.favorites)
-        {
-            user.privateMetadata.favorites=[]
+        favorites = favorites.filter(item => item !== movieId);
+           msg="Favorite Removed successfully !"
         }
+         
+        // Update Clerk metadata
+        await clerkClient.users.updateUserMetadata(userId, {
+            privateMetadata: {
+                ...user.privateMetadata,
+                favorites
+            }
+        });
+       
+        //updated to return favorite movies after updating(Adding/removing) fav movies
+    
+           // Get full movie docs from DB
+         const movies = await Movie.find({ _id: { $in: favorites } });
 
-         if(!user.privateMetadata.favorites.includes(movieId))
-        {
-            user.privateMetadata.favorites.push(movieId);
-        }
-        else{
-             user.privateMetadata.favorites= user.privateMetadata.favorites.filter(item=>item!=movieId)
-        }
 
-        await clerkClient.users.updateUserMetadata(userId,{privateMetadata:user.privateMetadata})
-        res.json({success:true,message:'Favorite Updated successfully !'})
+
+
+        res.json({success:true,movies,message:msg})
 
     }catch(error){
            console.error(error);

@@ -18,8 +18,8 @@ const TailorSection = () => {
         </div>
 
         <div className='group grid grid-cols-4 gap-4 mx-auto  max-w-3xl my-6 md:gap-8 '>
-            {dummyTrailers.map((trailor)=>(
-                <div className='relative 
+            {dummyTrailers.map((trailor,index)=>(
+                <div key={index} className='relative
                   group-hover:not-hover:opacity-50 hover:translate-y-1 duration-300
                   transition max-md:h-60 md:max-h-60 cursor-pointr
                 ' onClick={()=>setCurrentTrailor(trailor)}>

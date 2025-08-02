@@ -1,24 +1,25 @@
 import { ArrowBigLeft, ChevronLeft,ChevronRight, FeatherIcon, HeartIcon, MoveDiagonal, MoveLeft, MoveLeftIcon, MoveRightIcon, PlayCircleIcon, StarIcon } from 'lucide-react'
 
 import { useState ,useEffect,useRef } from 'react'
-import { dummyDateTimeData, dummyShowsData } from '../assets/assets'
 import timeFormat from '../../lib/timeFormat'
 import BlurCircle from '../components/BlurCircle'
 import DateSelect from '../components/DateSelect'
 import MovieCard from '../components/MovieCard'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import FeaturedSection from '../components/FeaturedSection'
 import Loader from '../components/Loader'
 import { fetchSingleShow } from '../redux/showSlice'
 import {useSelector,useDispatch} from 'react-redux'
 import { image_base_url } from '../config/constants'
+import {  updateFavorites } from '../redux/userSlice'
+import toast from 'react-hot-toast'
 const MoviesDetails = () => {
 
   const {id}=useParams();
-  
   const {show,loading,error,shows}=useSelector((state)=>state.show);
   const {user}=useSelector((state)=>state.auth);
+  const {favorites}=useSelector((state)=>state.user);
+
   const dispatch=useDispatch();
   const navigate=useNavigate();
   const scrollRef = useRef(null);
@@ -29,21 +30,42 @@ const MoviesDetails = () => {
     scrollRef.current?.scrollIntoView({behavior:"smooth"});
   };
 
-  console.log("show",show.movie.poster_path);
+
+
+  const handleFavorite=async ()=>{
+       if(user)
+       {
+           dispatch(updateFavorites(id))
+                        .unwrap()
+                        .then((res)=>{
+                       
+                          // dispatch(fetchFavorites()); // do we need to dispatch it to update it cz the heard styling depends on it ? yes. but we modified making no need
+                          toast.success(res.message);
+                        })
+                        .catch((error)=>{
+                          toast.error("unsuccessfull..",error);
+                        })
+
+       }
+  }
+
+
+
 
 
   useEffect(()=>{
   if(user)
   dispatch(fetchSingleShow(id));
-
   },[id,user])
 
+  if (loading) return <Loader />;
+  if (!show || !show.movie) return null;
 
-  
-  return  !loading ? (
+  // don't we  just "show" tp check ex: return show ? () ..because empty {} is truthy
+  return     (
     <div>
       <div className=' px-6 xl:px-44 lg:px-24  md:px-16 pt-50 min-h-[80vh] overflow-hidden'>
-
+          
 
             {/* Movie details */}
             <div className='flex flex-col md:flex-row gap-8 mb-5'>
@@ -66,7 +88,7 @@ const MoviesDetails = () => {
                   <button onClick={scrollToDateSection} className='bg-primary hover:bg-primary-dull transition px-9 py-3 rounded-md cursor-pointer active:scale-95'>Buy Tickets</button>
                   {/* <a href="#dateSection" className='bg-primary hover:bg-primary-dull transition px-9 py-3 rounded-md cursor-pointer active:scale-95'>Buy Tickets</a> */}
 
-                  <div className='rounded-full bg-gray-800 p-3'><HeartIcon className='size-5'/></div>
+                  <div onClick={handleFavorite} className='rounded-full bg-gray-800 p-3'><HeartIcon className={`size-5 ${favorites.find((movie)=>movie._id===id)? 'fill-primary text-primary':''}`}/></div>
                 </div>
 
               </div>
@@ -117,7 +139,7 @@ const MoviesDetails = () => {
             
       </div>
     </div>
-  ) : <Loader/>
+  )
 }
 
 export default MoviesDetails

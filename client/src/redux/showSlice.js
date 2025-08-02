@@ -55,7 +55,6 @@ export const fetchAllShows=createAsyncThunk('show/fetchAllShows',async(_,{getSta
 
 
 export const fetchSingleShow=createAsyncThunk('show/fetchSingleShow',async(movieId,{getState,rejectWithValue})=>{
-      
     try{ 
         
         const token=getState().auth.token;
