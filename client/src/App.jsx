@@ -95,7 +95,7 @@ const App = () => {
         
         <Route path='/theaters' element={<Movies/>} />
         <Route path='/releases' element={<Movies/>} />
-        <Route path='/favorites' element={<Dummy/>} />
+        <Route path='/favorites' element={<Favorites/>} />
 
         
          <Route path='/admin' element={ user ? <Layout /> : 

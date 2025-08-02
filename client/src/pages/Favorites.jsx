@@ -1,13 +1,25 @@
 
 
-import { dummyShowsData } from '../assets/assets'
 import BlurCircle from "../components/BlurCircle"
 import MovieCard from "../components/MovieCard"
+import { useEffect } from "react"
 
-
+import { useSelector,useDispatch } from 'react-redux'
+import { fetchFavorites } from '../redux/userSlice'
+import Loader from "../components/Loader"
 const Favorites = () => {
+   
+  const dispatch=useDispatch();
+  const {user}=useSelector((state)=>state.admin)
+  const {loading,error,favorites}=useSelector((state)=>state.user)
 
-  return  dummyShowsData.length>0 ?(
+  useEffect(()=>{
+    dispatch(fetchFavorites());
+  },[])
+
+  if(loading) <Loader/>
+  
+  return  favorites.length>0 ?(
     <div className=' px-6 xl:px-44 lg:px-24  md:px-16 my-20 py-20 min-h-[80vh] overflow-hidden'>      
 
     
@@ -17,7 +29,7 @@ const Favorites = () => {
           <BlurCircle top='50px' left='-140px'/>
           <BlurCircle bottom='0' right='-80px'/>
            
-           {dummyShowsData.slice(0,6).map((movie)=>
+           {favorites.slice(0,10).map((movie)=>
 
            <MovieCard key={movie._id} movie={movie}/>    )}
         </div>
