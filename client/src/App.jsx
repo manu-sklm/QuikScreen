@@ -24,8 +24,10 @@ import { useEffect } from 'react'
 import { useUser,useAuth, SignUp } from '@clerk/clerk-react'
 import {useDispatch,useSelector} from 'react-redux';
 import {setUser,setToken,fetchIsAdmin} from './redux/authSlice';
+import {fetchAllShows} from './redux/showSlice';
+
+
 import toast from 'react-hot-toast'
-import Dashboard2 from './pages/admin/Dashboard2'
 
 const App = () => {
   const isAdminRoute=useLocation().pathname.startsWith('/admin');
@@ -48,7 +50,7 @@ const App = () => {
       dispatch(setToken(token));
 
       dispatch(fetchIsAdmin()); //checks and sets isAdmin in redux store
-
+      dispatch(fetchAllShows());
 
     }
   

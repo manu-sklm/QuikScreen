@@ -21,3 +21,13 @@ export const getShows=async(token)=>{
         
         return res.data;
 }
+
+
+export const getShow=async(movieId,token)=>{
+     console.log("we are at getShow api !");
+        const res = await api.get(`/api/show/${movieId}`, {
+            headers:{ Authorization:`Bearer ${token}` }
+        })
+        
+        return res.data;
+}

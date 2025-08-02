@@ -2,10 +2,14 @@ import { ArrowRight } from 'lucide-react'
 import MovieCard from './MovieCard'
 import { useNavigate } from 'react-router-dom'
 import BlurCircle from './BlurCircle'
-import { dummyShowsData } from '../assets/assets'
+
+import { useSelector } from 'react-redux'
 const FeaturedSection = () => {
 
     const navigate=useNavigate();
+
+    const {shows}=useSelector((state)=>state.show)
+
 
   return (
     <div className=' xl:px-44 lg:px-24 md:px-16 px-6  overflow-hidden'>
@@ -22,7 +26,7 @@ const FeaturedSection = () => {
 
         <div className='flex flex-wrap gap-8 mt-8 max-sm:justify-center  '>
            
-           {dummyShowsData.slice(0,6).map((movie)=>
+           {shows.slice(0,6).map((movie)=>
 
            <MovieCard key={movie._id} movie={movie}/>    )}
 

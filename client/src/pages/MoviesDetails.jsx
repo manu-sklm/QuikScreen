@@ -10,45 +10,44 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import FeaturedSection from '../components/FeaturedSection'
 import Loader from '../components/Loader'
+import { fetchSingleShow } from '../redux/showSlice'
+import {useSelector,useDispatch} from 'react-redux'
+import { image_base_url } from '../config/constants'
 const MoviesDetails = () => {
 
   const {id}=useParams();
-  const [show,setShow]=useState();
+  
+  const {show,loading,error,shows}=useSelector((state)=>state.show);
+  const {user}=useSelector((state)=>state.auth);
+  const dispatch=useDispatch();
   const navigate=useNavigate();
   const scrollRef = useRef(null);
   
-  const getShow=async ()=>{
-    const show=dummyShowsData.find(show=>show._id==id);
-
-      if(show){
-          setShow({
-          movie:show,
-          dateTime:dummyDateTimeData
-          })
-      }
-   
-  }
+ 
 
   const scrollToDateSection=()=>{
     scrollRef.current?.scrollIntoView({behavior:"smooth"});
   };
 
+  console.log("show",show.movie.poster_path);
+
 
   useEffect(()=>{
-    getShow()
+  if(user)
+  dispatch(fetchSingleShow(id));
 
-  },[id])
+  },[id,user])
 
 
   
-  return show ? (
+  return  !loading ? (
     <div>
       <div className=' px-6 xl:px-44 lg:px-24  md:px-16 pt-50 min-h-[80vh] overflow-hidden'>
 
 
             {/* Movie details */}
             <div className='flex flex-col md:flex-row gap-8 mb-5'>
-              <img src={show.movie.poster_path} alt="" className='h-104 max-w-70 object-cover rounded-xl' />
+              <img src={image_base_url+show.movie.poster_path} alt="" className='h-104 max-w-70 object-cover rounded-xl' />
               <div className='space-y-4 relative'>
                 <BlurCircle top="-50px" left="-150px" />
                 <p className='text-primary text-md'>ENGLISH</p>
@@ -82,7 +81,7 @@ const MoviesDetails = () => {
                 show.movie.casts.slice(0,12).map((cast,index)=>(
                   <div key={index} className='flex flex-col items-center text-center  '>
 
-                    <img src={cast.profile_path} alt="profileImage" className='aspect-square  rounded-full size-20 object-center object-cover'/>
+                    <img src={image_base_url+cast.profile_path} alt="profileImage" className='aspect-square  rounded-full size-20 object-center object-cover'/>
                     <p className=' font-medium text-xs mt-3' >{cast.name}</p>
 
                   </div>
@@ -104,7 +103,7 @@ const MoviesDetails = () => {
             <p className=' text-lg  font-medium mt-20 mb-8'>You May Also Like</p>
             <div className=' relative flex flex-wrap max-sm:justify-center  gap-8  '>
              <BlurCircle top='200px' right='200px'/>
-                  {dummyShowsData.slice(0,6).map((movie)=>
+                  {shows.slice(0,6).map((movie)=>
 
                   <MovieCard key={movie._id} movie={movie}/>    )}
                 

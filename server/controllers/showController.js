@@ -154,7 +154,7 @@ export const getShow=async (req,res)=>{
         const movie =await Movie.findById(movieId);
 
         const dateTime={};
-
+       
         shows.forEach((show)=>{
             const date= show.showDateTime.toISOString().split("T")[0];
 
