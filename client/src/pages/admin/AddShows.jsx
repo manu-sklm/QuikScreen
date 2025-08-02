@@ -1,6 +1,5 @@
 import React, { useEffect,useState } from 'react'
 import Title from '../../components/admin/Title'
-import { dummyShowsData } from '../../assets/assets'
 import ShowCard from '../../components/admin/ShowCard'
 import Loader from '../../components/Loader'
 
@@ -9,14 +8,17 @@ import "react-datepicker/dist/react-datepicker.css"; // import default styles
 import { DeleteIcon } from 'lucide-react'
 
 import { useSelector,useDispatch } from 'react-redux'
-import { fetchNowMovies,addShow } from '../../redux/showSlice'
+import { fetchNowMovies } from '../../redux/showSlice'
+import { addShow } from '../../redux/adminSlice'
 import toast from 'react-hot-toast'
 const Addshows = () => {
  
   const currency =import.meta.env.VITE_CURRENCY
 
   const dispatch = useDispatch();
-  const { loading,addShowLoading, error, nowPlayingMovies } = useSelector((state) => state.show);
+  const { loading, error, nowPlayingMovies } = useSelector((state) => state.show);
+  const {addShowLoading} = useSelector((state) => state.admin);
+
   const { user } = useSelector((state) => state.auth);
 
 
