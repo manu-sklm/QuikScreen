@@ -13,13 +13,11 @@ export const getNowPlayingMovies=async (token)=>{
 }
 
 
-
-export const addNewShow=async (token,showData)=>{
-         console.log("we are at addShow api !");
-        const res = await api.post('/api/show/add',showData, {
+export const getShows=async(token)=>{
+     console.log("we are at getShows api !");
+        const res = await api.get('/api/show/all', {
             headers:{ Authorization:`Bearer ${token}` }
         })
         
         return res.data;
-   
 }

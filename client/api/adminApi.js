@@ -13,6 +13,23 @@ export const getDashboardData=async (token)=>{
 }
 
 
+
+
+
+export const addNewShow=async (token,showData)=>{
+         console.log("we are at addShow api !");
+        const res = await api.post('/api/show/add',showData, {
+            headers:{ Authorization:`Bearer ${token}` }
+        })
+        
+        return res.data;
+   
+}
+
+
+
+
+
 export const getListOfShows=async (token)=>{
          console.log("we are at shows list api !");
         const res = await api.get('/api/admin/all-shows', {

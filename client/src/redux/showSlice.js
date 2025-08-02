@@ -1,11 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addNewShow, getNowPlayingMovies } from "../../api/showApi";
+import { getNowPlayingMovies, getShows } from "../../api/showApi";
 
 const initialState={
     nowPlayingMovies :[],
+    shows:[],
     loading:false,
-    addShowLoading:false,
-
     error:null
 }
 
@@ -30,23 +29,29 @@ export const fetchNowMovies=createAsyncThunk('admin/fetchNowMovies',async(_,{get
 });
 
 
-export const addShow=createAsyncThunk("admin/addShow",async(payload,{getState,rejectWithValue})=>{
 
-    try{
-         const token=getState().auth.token;
-         const res = await addNewShow(token,payload);
-        if(!res.success)
-        {
-          return  rejectWithValue(res.message);
+export const fetchAllshows=createAsyncThunk('show/fetchAllShows',async(_,{getState,rejectWithValue})=>{
+      
+    try{ 
+        
+        const token=getState().auth.token;
+        const res=await getShows(token);
+        if(!res.success) {
+           return  rejectWithValue(res.message);
         }
+        
+        return res.shows;  
 
 
-       return res.data;
-    }catch(error){
+    }catch(error)
+    {   
 
-        return rejectWithValue(error.response?.data?.message || error.message);
+         return rejectWithValue(error.response?.data?.message || error.message);
     }
 });
+
+
+
 
 
 export const showSlice=createSlice({
@@ -55,6 +60,7 @@ export const showSlice=createSlice({
     reducers:{},
     extraReducers:builder=>{
         builder
+            //fetchNowMovies for admin dahsboard
             .addCase(fetchNowMovies.pending,(state)=>{
                 state.loading=true;
                 state.error=null;
@@ -75,24 +81,28 @@ export const showSlice=createSlice({
 
             })
 
-             .addCase(addShow.pending,(state)=>{
-                state.addShowLoading=true;
+            // fetchAllshows for home page
+
+              .addCase(fetchAllshows.pending,(state)=>{
+                state.loading=true;
                 state.error=null;
-                console.log("addShow pending !");
+                console.log("fetchNowMovies pending !");
                 
             })
 
-            .addCase(addShow.fulfilled,(state,action)=>{
-                state.addShowLoading=false;
-                console.log("addShow fulfiled !");
+            .addCase(fetchAllshows.fulfilled,(state,action)=>{
+                state.loading=false;
+                state.shows=action.payload;
+                console.log("fetchNowMovies fulfiled !");
             })
 
-            .addCase(addShow.rejected,(state,action)=>{
-                state.addShowLoading=false;
+            .addCase(fetchAllshows.rejected,(state,action)=>{
+                state.loading=false;
                 state.error=action.payload;
-                console.log("addShow rejected !");
+                console.log("fetchNowMovies rejected !");
 
             })
+
 
     }
 });

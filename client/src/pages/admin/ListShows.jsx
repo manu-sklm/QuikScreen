@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import Title from '../../components/admin/Title'
-import { dummyShowsData } from '../../assets/assets';
 import Loader from '../../components/Loader';
 import dateTimeFormat from '../../../lib/dateTimeFormat';
 

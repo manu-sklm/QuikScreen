@@ -1,9 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getAllBookings, getDashboardData, getListOfShows } from "../../api/adminApi";
+import { getAllBookings, getDashboardData, getListOfShows,addNewShow } from "../../api/adminApi";
 
 const initialState={
     dashboardData :{},
     loading:false,
+    addShowLoading:false,
     error:null,
     showsList:[],
     bookings:[]
@@ -76,6 +77,26 @@ export const fetchBookings=createAsyncThunk('admin/fetchBookings',async(_,{getSt
 
 
 
+
+export const addShow=createAsyncThunk("admin/addShow",async(payload,{getState,rejectWithValue})=>{
+
+    try{
+         const token=getState().auth.token;
+         const res = await addNewShow(token,payload);
+        if(!res.success)
+        {
+          return  rejectWithValue(res.message);
+        }
+
+
+       return res.data;
+    }catch(error){
+
+        return rejectWithValue(error.response?.data?.message || error.message);
+    }
+});
+
+
 export const adminSlice=createSlice({
     name:'admin',
     initialState,
@@ -101,7 +122,32 @@ export const adminSlice=createSlice({
                 console.log("fetchDashboard rejected !");
 
             })
+          
 
+            //addShow thunk
+             .addCase(addShow.pending,(state)=>{
+                state.addShowLoading=true;
+                state.error=null;
+                console.log("addShow pending !");
+                
+            })
+
+            .addCase(addShow.fulfilled,(state,action)=>{
+                state.addShowLoading=false;
+                console.log("addShow fulfiled !");
+            })
+
+            .addCase(addShow.rejected,(state,action)=>{
+                state.addShowLoading=false;
+                state.error=action.payload;
+                console.log("addShow rejected !");
+
+            })
+
+
+
+
+            // fetchList thunk
 
 
               .addCase(fetchListOfShows.pending,(state)=>{
@@ -127,7 +173,7 @@ export const adminSlice=createSlice({
             })
 
 
-
+            // fetchBookings shows
 
                .addCase(fetchBookings.pending,(state)=>{
 

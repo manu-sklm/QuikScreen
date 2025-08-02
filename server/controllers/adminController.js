@@ -44,7 +44,7 @@ export const getAllShows=async(req,res)=>{
 
             const shows=await Show.find({showDateTime:{$gte:new Date()}}).populate('movie').sort({showDateTime:1});
            
-
+            
             res.json({success:true,shows});
 
             
