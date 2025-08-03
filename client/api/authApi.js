@@ -4,7 +4,6 @@ import api from './axiosInstance';
 export const checkIsAdmin=async (token)=>{
 
     
-        console.log("we are at is admin api..!");
 
         const res = await api.get('/api/admin/is-admin', {
             headers:{ Authorization:`Bearer ${token}` }

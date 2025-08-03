@@ -7,7 +7,9 @@ import { useSelector } from 'react-redux'
 
 const Movies = () => {
 
-  const {shows}=useSelector((state)=>state.show)
+  const {shows}=useSelector((state)=>state.show);
+
+  console.log(shows);
 
   return  shows.length>0 ?(
     <div className=' px-6 xl:px-44 lg:px-24  md:px-16 my-20 py-20 min-h-[80vh] overflow-hidden'>
@@ -25,7 +27,7 @@ const Movies = () => {
           <BlurCircle top='50px' left='-140px'/>
           <BlurCircle bottom='0' right='-80px'/>
            
-           {shows.slice(0,10).map((movie)=>
+           {shows.slice(0,12).map((movie)=>
 
            <MovieCard key={movie._id} movie={movie}/>    )}
         </div>

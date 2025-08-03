@@ -16,9 +16,9 @@ const Dashboard = () => {
   const {dashboardData,loading,error}=useSelector(state=>state.admin);
 
   console.log(dashboardData,loading,error);
-  console.log("in Dashboard");
+
   const dashboardCards=[
-    {title:"Total Bookings", value:dashboardData.totalBookings|| "0",icon:ChartLineIcon},
+    {title:"Total Bookings", value:dashboardData.totalBookings||"0",icon:ChartLineIcon},
     {title:"Total Revenue", value:dashboardData.totalRevenue|| "0",icon:CircleDollarSignIcon},
     {title:"Active Shows", value:dashboardData.activeShows?.length|| "0",icon:PlayCircleIcon},
     {title:"Total Users", value:dashboardData.totalUser|| "0",icon:UsersIcon},
@@ -28,7 +28,7 @@ const Dashboard = () => {
   ]
 
 
-   console.log("dashaboard lenght.." ,dashboardData.activeShows?.length);
+   console.log("dashaboard length.." ,dashboardData.activeShows?.length);
 
 
   useEffect(()=>{

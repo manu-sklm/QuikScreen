@@ -54,8 +54,10 @@ const MoviesDetails = () => {
 
 
   useEffect(()=>{
+    
   if(user)
   dispatch(fetchSingleShow(id));
+
   },[id,user])
 
   if (loading) return <Loader />;

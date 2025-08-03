@@ -48,11 +48,16 @@ const App = () => {
       dispatch(setUser(user));
 
       const token= await getToken();
-      dispatch(setToken(token));
+        if(token){              //this was added during debugging of OG problem
+        dispatch(setToken(token));
+        dispatch(fetchIsAdmin()); //checks and sets isAdmin in redux store
+        dispatch(fetchAllShows());
+        dispatch(fetchFavorites());
 
-      dispatch(fetchIsAdmin()); //checks and sets isAdmin in redux store
-      dispatch(fetchAllShows());
-      dispatch(fetchFavorites());
+        }
+       
+    
+     
 
     }
   

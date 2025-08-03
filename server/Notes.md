@@ -755,3 +755,150 @@ So, you should provide an empty dependency array []:
   
 
   // don't we  just "show" tp check ex: return show ? () ..because empty {} is truthy
+
+
+ ## 20  when i log bookings data....for first 2-3 times it logging [] array, which is fine..but at last it's logging undefined why?
+
+This usually *directly points* to something specific in Redux or your thunk logic.
+
+---
+
+### ✅ **What’s happening:**
+
+At first, your component mounts:
+
+* It sees `bookings` as `[]` from `initialState` (good).
+* Then you dispatch `fetchBookings()`.
+
+During the async thunk:
+
+1. `pending` action is dispatched → state.loading = true.
+2. API call happens.
+3. `fulfilled` (or `rejected`) action is dispatched → state updated.
+
+---
+
+### ⚠️ **Why does it log `undefined` later?**
+
+This usually means that **your reducer is setting `state.bookings` to undefined**
+→ most often in the `.rejected` case or because of the thunk result.
+
+---
+
+### 🔍 **Check these 2 likely causes:**
+
+#### 🧩 1) In your thunk:
+
+In your thunk, you might have:
+
+```js
+if (!res.success) {
+  return rejectWithValue(res.message);
+}
+return res.bookings;
+```
+
+But:
+
+* If API fails silently, or response doesn’t have `res.bookings`, then `res.bookings` is `undefined`.
+* Then `fulfilled` case gets `undefined` payload → your reducer sets:
+
+```js
+state.bookings = action.payload; // which is undefined
+```
+
+**Solution:**
+Always fallback:
+
+```js
+return res.bookings || [];
+```
+
+---
+
+#### 🧩 2) In your reducer `.rejected` case:
+
+Make sure you **do NOT** do:
+
+```js
+.addCase(fetchBookings.rejected, (state, action) => {
+    state.loading = false;
+    state.bookings = undefined; // ❌ don't do this
+})
+```
+
+You should only do:
+
+```js
+.addCase(fetchBookings.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+})
+```
+
+---
+
+### ✅ **Better: Defensive in fulfilled**
+
+```js
+.addCase(fetchBookings.fulfilled, (state, action) => {
+    state.loading = false;
+    state.bookings = action.payload || [];
+})
+```
+
+---
+
+### 🧪 **Why does it log `[]` first, then `undefined`?**
+
+Because:
+
+* Component renders first → `bookings` from `initialState` → logs `[]`
+* Dispatch happens → thunk runs
+* Thunk fails or returns `undefined` → reducer updates `state.bookings = undefined`
+* Component re-renders → logs `undefined`
+
+---
+
+### 🩹 **Summary to fix:**
+
+✅ In thunk:
+
+```js
+return res.bookings || [];
+```
+
+✅ In reducer:
+
+```js
+.addCase(fetchBookings.fulfilled, (state, action) => {
+    state.loading = false;
+    state.bookings = action.payload || [];
+})
+.addCase(fetchBookings.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+    // Don't touch state.bookings
+})
+```
+
+---
+
+### ✅ **Then in component:**
+
+Always render safely:
+
+```jsx
+bookings?.length > 0 ? (...) : (...)
+```
+
+---
+
+
+----wasted the whole afternoon session---
+## 21 Problem in occupiedSeats that pissed mee off
+
+## 22 The OG that made feel leaving it....
+
+logging server is Live
+working when navigated through navbar profile botton but not through normally when redirecting --cz token beiong null, so had to fetch the token fresh

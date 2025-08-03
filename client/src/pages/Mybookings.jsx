@@ -1,27 +1,33 @@
  import React, { useEffect, useState } from 'react'
- import { dummyBookingData } from '../assets/assets'
-import { Loader } from 'lucide-react';
 import dateTimeFormat from '../../lib/dateTimeFormat';
 import timeFormat from '../../lib/timeFormat';
 
 import BlurCircle from '../components/BlurCircle';
- const Mybookings = () => {
-   
-  
-  const [bookings,setBookings]=useState([]);
-  const [isLoading,setIsLoading]=useState(true);
 
-  const getBookings=()=>{
-    setBookings(dummyBookingData);
-    setIsLoading(false);
-  }
+import { useSelector,useDispatch } from 'react-redux';
+import { fetchBookings } from '../redux/userSlice';
+import Loader from '../components/Loader';
+import { image_base_url } from '../config/constants';
+ const Mybookings = () => {
+
+   
+
+  const {user}=useSelector(state=>state.auth);
+
+  const {loading,error,bookings}=useSelector((state)=>state.user);
+  const dispatch=useDispatch();
+
+  console.log("bookings: ",bookings);
 
   useEffect(()=>{
-    getBookings();
-  },[]);
+      if(user)
+      dispatch(fetchBookings());
+  },[user]);
+   
 
-
-   return !isLoading ? (
+  if(loading) return <Loader/>
+  
+   return  bookings?.length>0 ? (
 
 
     <div className='relative px-6 md:px-16 lg:px-40 pt-30 md:pt-40 min-h-[80vh]'>
@@ -34,7 +40,7 @@ import BlurCircle from '../components/BlurCircle';
           <div key={index} className='flex flex-col md:flex-row justify-between bg-primary/8 border-primary/20 rounded-lg mt-4 p-2 max-w-3xl'>
 
             <div className='flex flex-col md:flex-row '>
-                <img src={item.show.movie.poster_path} alt="" className='md:max-w-45 h-auto aspect-video object-cover object-bottom rounded'/>
+                <img src={image_base_url+item.show.movie.poster_path} alt="" className='md:max-w-45 h-auto aspect-video object-cover object-center rounded'/>
 
                 <div className='flex flex-col   p-4'>
                   <p className='text-xl font-semibold'>{item.show.movie.title}</p>
@@ -65,7 +71,13 @@ import BlurCircle from '../components/BlurCircle';
         ))}  
         
     </div>
-   ): <Loader/>
+   ):( 
+            <div className='min-h-screen w-full flex justify-center items-center'>
+              <h2 className='text-3xl font-bold text-center'> No bookins by the user yet !</h2>
+            </div>
+   
+    )
+   
  }
  
  export default Mybookings

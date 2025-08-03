@@ -21,9 +21,9 @@ export const getDashboardData=async(req,res)=>{
 
             
           
-
+  
             const dashboardData={
-                totalBookigs:bookings.length,
+                totalBookings:bookings.length,
                 totalRevenue:bookings.reduce((acc , booking)=>acc+booking.amount,0),
                 activeShows,
                 totalUser

@@ -17,14 +17,11 @@ await connectDB();
 
 app.use(express.json());    //json text/data to js object 
 app.use(cors());
-app.use(clerkMiddleware())
+app.use(clerkMiddleware());
 
 
 
 // Routes
-app.get('/',(req,res)=>{
-    res.send('server is Live..!');
-})
 
 
 // Set up the "/api/inngest" (recommended) routes with the serve handler
@@ -35,6 +32,11 @@ app.use('/api/show',showRouter);
 app.use('/api/booking',bookingRouter); 
 app.use('/api/admin',adminRouter);
 app.use('/api/user',userRouter);
+
+
+app.get('/',(req,res)=>{
+    res.send('server is Live..!');
+})
 
 app.listen(port,()=>{
     console.log(`Server listening at http://localhost:${port}`);

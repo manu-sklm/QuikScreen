@@ -2,8 +2,8 @@
 import api from "./axiosInstance";
 
 export const getFavorites=async(token)=>{
-     console.log("we are at getShow api !");
-        const res = await api.get('api/user/favorites', {
+   
+        const res = await api.get('/api/user/favorites', {
             headers:{ Authorization:`Bearer ${token}` }
         })
         
@@ -14,7 +14,19 @@ export const getFavorites=async(token)=>{
 
 export const updateFavorite=async(movieId,token)=>{
      
-        const res = await api.post('api/user/update-favorite',{movieId}, {
+        const res = await api.post('/api/user/update-favorite',{movieId}, {
+            headers:{ Authorization:`Bearer ${token}` }
+        })
+        
+        return res.data;
+}
+
+
+
+export const getBookings=async(token)=>{
+
+        console.log("at bookings api !"); 
+        const res = await api.get('/api/user/bookings', {
             headers:{ Authorization:`Bearer ${token}` }
         })
         

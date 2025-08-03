@@ -3,12 +3,15 @@ import authReducer from './authSlice'
 import adminReducer from './adminSlice'
 import showReducer from './showSlice'
 import userReducer from './userSlice'
+import bookingReducer from './bookingSlice'
+
 const store=configureStore({
     reducer:{
         auth:authReducer,
         admin:adminReducer,
         show:showReducer,
-        user:userReducer
+        user:userReducer,
+        booking:bookingReducer
     }
 })
 

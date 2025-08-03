@@ -8,15 +8,25 @@ import  isoTimeFormat from '../../lib/isoTimeFormat'
 import Loader from '../components/Loader'
 import BlurCircle from '../components/BlurCircle'
 import toast from 'react-hot-toast'
+
+
+import { useDispatch,useSelector } from 'react-redux';
+import { fetchSingleShow } from '../redux/showSlice'
+import { bookSeats, fetchOccupiedSeats } from '../redux/bookingSlice'
 const SeatLayout = () => {
 
   const groupRows=[['A','B'],['C','D'],['E','F'],['G','H'],['I','J']];
 
   const {id,date}=useParams();
+  const dispatch=useDispatch();
+
+  const {user}=useSelector(state=>state.auth);
+  const {loading,error,show}=useSelector(state=>state.show);
+  const {occupiedSeats}=useSelector(state=>state.booking);
+
   const [selectedTime,setSelectedTime]=useState(null);
   const [selectedSeats,setSelectedSeats]=useState([]);
 
-  const[show,setShow]=useState(null);
 
   const navigate=useNavigate();
 
@@ -27,6 +37,9 @@ const SeatLayout = () => {
 
     if(!selectedSeats.includes(seatId) && selectedSeats.length>4 )
     return toast("You can only select 5 seats");
+
+    if(occupiedSeats.includes(seatId))
+     return toast("This seat is already booked "); 
   
     setSelectedSeats(prev=> prev.includes(seatId)? prev.filter(seat=>seat!==seatId): [...prev,seatId])
   
@@ -35,28 +48,37 @@ const SeatLayout = () => {
 
 
   const handleBooking =()=>{
-    if(selectedSeats.length==0)
-    { toast.error("Please select at least one seat before booking!");
-     return
-    }
-     navigate("/my-bookings");
+      if(!user) return toast.error("Please login to proceed ");
+       
+      if(!selectedTime || !selectedSeats.length){
+      return toast.error("Please select time and seats");        
+       } 
+
+      dispatch(bookSeats({showId:selectedTime.showId , selectedSeats}))
+          .unwrap()
+          .then((res)=>{
+             toast.success(res.message);
+            navigate("/my-bookings");
+          })
+          .catch((error)=>{
+            toast.error(error.message);
+          })
+ 
+
   }
 
-  const getShow=()=>{
-    const show=dummyShowsData.find(show=>show._id===id);
-    if(show)
-    {
-      setShow({
-        movie:show,
-        dateTime:dummyDateTimeData
-      })
-    }
-  }
 
   useEffect(()=>{
-
-       getShow();  
+      if(user)
+      dispatch(fetchSingleShow(id));
   },[]);
+  
+
+  useEffect(()=>{
+       if(selectedTime)
+       dispatch(fetchOccupiedSeats(selectedTime.showId));
+  },[selectedTime]);
+
 
 
   const renderSeats= (row,count=9)=>(
@@ -67,7 +89,10 @@ const SeatLayout = () => {
             const seatId=`${row}${i+1}`;
 
             return ( 
-              <button key={seatId} onClick={()=>handleClick(seatId)} className={`size-8 rounded border border-primary/60 cursor-pointer ${selectedSeats.includes(seatId)&&"bg-primary text-white"}`} >
+              <button key={seatId} onClick={()=>handleClick(seatId)} className={`size-8 rounded border border-primary/60 cursor-pointer
+               ${selectedSeats.includes(seatId)&&"bg-primary text-white"}
+               ${occupiedSeats.includes(seatId)&&"bg-primary/50 "}`
+               } >
                     {seatId}
               </button>
             )
@@ -79,8 +104,10 @@ const SeatLayout = () => {
   )
 
 
-
-  return show ? (
+ 
+   if (loading) return <Loader />;
+   if (!show || !show.movie) return null;
+  return  (
    <div className=' relative flex flex-col md:flex-row  px-6 md:px-16 lg:px-40 py-30 md:pt-50'>
         {/* <BlurCircle top='10' right='-100'/> */}
 
@@ -93,7 +120,7 @@ const SeatLayout = () => {
           <div className='mt-5 space-y-1'>
 
             {show.dateTime[date].map((item)=>(
-                     
+                      
                       <div key={item.time} onClick={()=>setSelectedTime(item)} className={`flex items-center gap-2 py-2 px-6 w-max rounded-r-md cursor-pointer transition ${selectedTime?.time===item.time ?  'bg-primary text-white' : ' hover:bg-primary/20'} `}>
                         <Clock className='size-4 '/>
                         <p  className='text-sm'> { isoTimeFormat(item.time) } </p>
@@ -142,9 +169,7 @@ const SeatLayout = () => {
         </div>
 
     </div>
-  ) :(<div>
-    <Loader/>
-      </div>)
+  ) 
 }
 
 export default SeatLayout
