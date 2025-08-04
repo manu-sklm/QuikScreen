@@ -1149,3 +1149,63 @@ Stripe doesn’t send your DB’s bookingId directly, so you store it in metadat
 * You correctly read metadata and update DB.
 
 ---
+
+
+## 24 Bugs 
+
+
+
+🔴 **1. Paylink not saved: cz in my model i wrote paymentString and in my controller i adding paymentLink**
+
+
+🔴 **2.Webhook Error: `No stripe-signature header value was provided.`**
+
+I ran into this error because Stripe sends the `stripe-signature` header **only when the webhook is triggered from Stripe’s servers**.
+
+👉 So when I was testing my webhook endpoint from Postman or a browser (or frontend), this header wasn't included — which caused the error.
+
+Also, I initially wrote:
+
+```js
+const sig = req.headers["stripe_signature"];
+```
+
+But I now know that even though headers are case-insensitive, **the correct way is**:
+
+```js
+const sig = req.headers["stripe-signature"];
+```
+
+✅ Even better, many use:
+
+```js
+const sig = req.headers['stripe-signature'] || req.headers['Stripe-Signature'];
+```
+
+---
+
+⚠️ **3 Another mistake I made:**
+
+I passed my Stripe **Secret Key** as the third argument in `constructEvent` like this:
+
+```js
+event = stripeInstance.webhooks.constructEvent(req.body, sig, process.env.STRIPE_SECRET_KEY);
+```
+
+But that’s wrong.
+
+✅ The correct value I need to pass is **my Webhook Signing Secret**, not the secret key.
+
+So I fixed it like this:
+
+```js
+event = stripeInstance.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+```
+
+I got this `STRIPE_WEBHOOK_SECRET` from my Stripe Dashboard → Webhooks → Click my webhook → Copy the “Signing secret”.
+
+
+
+⚠️ **Note:** push changes to github to relfect changes and stripeWebhook logs will logged in vercel cz we deployed backend on vercel 
+
+---

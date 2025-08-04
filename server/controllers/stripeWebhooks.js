@@ -4,13 +4,7 @@ import Booking from "../models/Booking.js";
 export const stripeWebhooks= async(req,res)=>{
     const stripeInstance=new stripe(process.env.STRIPE_SECRET_KEY);
 
-
-    console.log("entered stripeWebHooks...............");
-   
-
-
     const sig=req.headers["stripe-signature"];
-     console.log("entered stripeWebHooks...............",sig);
 
     let event;
 
@@ -20,11 +14,7 @@ export const stripeWebhooks= async(req,res)=>{
 
         event=stripeInstance.webhooks.constructEvent(req.body,sig,process.env.STRIPE_WEBHOOK_SECRET);
 
-
-        console.log('event created ',event.type);
-
-    }catch(err)
-    {
+    }catch(err){
         console.error("webhook signature verification failed",err.message);
         res.status(400).send(`Webhook Error : ${err.message}`);
     }
@@ -38,7 +28,6 @@ export const stripeWebhooks= async(req,res)=>{
                 const sessionList=await stripeInstance.checkout.sessions.list({
                     payment_intent:paymentIntent.id
                 })
-                console.log("enterted success block");
                 const session=sessionList.data[0];
 
                 const {bookingId}=session.metadata;
