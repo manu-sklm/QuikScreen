@@ -8,6 +8,7 @@ import { useSelector,useDispatch } from 'react-redux';
 import { fetchBookings } from '../redux/userSlice';
 import Loader from '../components/Loader';
 import { image_base_url } from '../config/constants';
+import { Link } from 'react-router-dom';
  const Mybookings = () => {
 
    
@@ -56,7 +57,7 @@ import { image_base_url } from '../config/constants';
 
                    <div className='flex items-center gap-3'>
                         <p className='text-2xl font-semibold'>${item.amount}</p>
-                        {!item.isPaid && <button className='px-4 py-1.5 text-sm rounded-full bg-primary font-medium cursor-pointer hover:bg-primary-dull active:scale-95'>Pay Now</button>}
+                        {!item.isPaid && <Link to={item.paymentLink}  className='px-4 py-1.5 text-sm rounded-full bg-primary font-medium cursor-pointer hover:bg-primary-dull active:scale-95'>Pay Now</Link>}
                    </div>
 
                   <div className='text-sm'>

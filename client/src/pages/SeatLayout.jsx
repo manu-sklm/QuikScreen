@@ -92,7 +92,7 @@ const SeatLayout = () => {
             return ( 
               <button key={seatId} onClick={()=>handleClick(seatId)} className={`size-8 rounded border border-primary/60 cursor-pointer
                ${selectedSeats.includes(seatId)&&"bg-primary text-white"}
-               ${occupiedSeats.includes(seatId)&&" opacity-50 "}`
+               ${occupiedSeats.includes(seatId)&&selectedTime&&" opacity-50 "}`
                } >
                     {seatId}
               </button>

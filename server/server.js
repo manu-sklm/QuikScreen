@@ -19,7 +19,7 @@ await connectDB();
 //middle wares
 
 
-app.use('/api/stripe', express.raw({type:'application/json'}), stripeWebhooks) // this should be placed before express.json() middleware , cz the we need the data in raw format cz it containts signature
+app.post('/api/stripe', express.raw({type:'application/json'}), stripeWebhooks) // this should be placed before express.json() middleware , cz the we need the data in raw format cz it containts signature
 
 
 app.use(express.json());    //json text/data to js object 

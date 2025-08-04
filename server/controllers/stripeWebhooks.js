@@ -4,13 +4,24 @@ import Booking from "../models/Booking.js";
 export const stripeWebhooks= async(req,res)=>{
     const stripeInstance=new stripe(process.env.STRIPE_SECRET_KEY);
 
-    const sig=req.headers["stripe_signature"];
+
+    console.log("entered stripeWebHooks...............");
+   
+
+
+    const sig=req.headers["stripe-signature"];
+     console.log("entered stripeWebHooks...............",sig);
 
     let event;
+
+    
 
     try{
 
         event=stripeInstance.webhooks.constructEvent(req.body,sig,process.env.STRIPE_SECRET_KEY);
+
+
+        console.log('event created ',event.type);
 
     }catch(err)
     {
@@ -27,17 +38,19 @@ export const stripeWebhooks= async(req,res)=>{
                 const sessionList=await stripeInstance.checkout.sessions.list({
                     payment_intent:paymentIntent.id
                 })
-
+                console.log("enterted success block");
                 const session=sessionList.data[0];
 
                 const {bookingId}=session.metadata;
+
+            
 
                 await Booking.findByIdAndUpdate(bookingId,{
                     isPaid:true,
                     paymentLink:""
                 })
 
-
+               
                 break;
             }
 
@@ -57,3 +70,13 @@ export const stripeWebhooks= async(req,res)=>{
     }
 
 }
+
+
+
+
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};

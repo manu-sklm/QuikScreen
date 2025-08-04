@@ -68,6 +68,7 @@ export const createBooking =async(req,res)=>
         //Stripe Gateway Intialize -here  `
 
         const stripeInstance=new stripe(process.env.STRIPE_SECRET_KEY);
+        
 
         const line_items=[{
             price_data:{
@@ -80,30 +81,34 @@ export const createBooking =async(req,res)=>
             quantity:1
         }]
 
+       
+
 
         const session=await stripeInstance.checkout.sessions.create({
-          success_url:'${origin}/loading/my-bookings',
-          cancel_url:'${origin}/my-bookings',
+          success_url:`${origin}/loading/my-bookings`,
+          cancel_url:`${origin}/my-bookings`,
           line_items:line_items,
           mode:'payment',
           metadata:{
             bookingId:booking._id.toString()
           },
-          expires_at:Math.floor(Date.now()/1000)*30*60, //expires in 30 mins
+          expires_at:Math.floor(Date.now()/1000)+30*60, //expires in 30 mins
 
         })
 
-        booking.paymentLink=session.url;
+          console.log("session created with url",session.url);
 
-        await booking.save();
+              
+                        booking.paymentLink = session.url;
 
-
-           
-        res.json({success:true,url:session.url});
+                        await booking.save();
+                  
+                      res.json({success:true,url:session.url});
 
 
     }catch(error)
     {
+        console.log("entered catch");
 
         console.error(error);
         res.json({success:false,message:error.message});
