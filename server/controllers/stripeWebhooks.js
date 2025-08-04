@@ -18,7 +18,7 @@ export const stripeWebhooks= async(req,res)=>{
 
     try{
 
-        event=stripeInstance.webhooks.constructEvent(req.body,sig,process.env.STRIPE_SECRET_KEY);
+        event=stripeInstance.webhooks.constructEvent(req.body,sig,process.env.STRIPE_WEBHOOK_SECRET);
 
 
         console.log('event created ',event.type);
@@ -74,9 +74,3 @@ export const stripeWebhooks= async(req,res)=>{
 
 
 
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
