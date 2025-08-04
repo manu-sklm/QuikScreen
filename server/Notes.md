@@ -902,3 +902,250 @@ bookings?.length > 0 ? (...) : (...)
 
 logging server is Live
 working when navigated through navbar profile botton but not through normally when redirecting --cz token beiong null, so had to fetch the token fresh
+
+## 23
+
+
+### 🧩 **Overall flow of Stripe integration in your booking system:**
+
+1. ✅ **User selects seats & time** → clicks “Proceed to Checkout”.
+2. 🧠 **Frontend** sends request to your backend (`/create-booking`).
+3. ⚙️ **Backend:**
+
+   * Checks seat availability.
+   * Creates a `Booking` in DB with `paymentLink` (initially empty).
+   * Calls Stripe API to create a Checkout Session.
+   * Receives `session.url` and saves it as `paymentLink`.
+4. 🔀 **Frontend** redirects user to that Stripe `session.url`.
+5. 💳 **User completes payment** on Stripe Checkout.
+6. 🔔 **Stripe** sends a `checkout.session.completed` webhook to your backend:
+
+   * Backend handles this webhook.
+   * Finds the related `Booking` by `metadata.bookingId`.
+   * Marks booking as paid / updates status.
+7. ✅ User is redirected back (success URL) → your app shows **loading** page (`/loading/my-bookings`), then final bookings page.
+
+---
+
+### ✏️ **What you understood & learned point by point:**
+
+✅ **1. Stripe backend integration:**
+
+* You use the Stripe SDK (`new Stripe(secretKey)`).
+* You create a `checkout.session` on backend, specifying `success_url`, `cancel_url`, `line_items` etc.
+* Use `metadata` to pass your `bookingId` so you can recognize it in the webhook.
+
+---
+
+✅ **2. Webhook endpoint:**
+
+* Backend adds:
+
+```js
+app.post('/api/webhook', express.raw({ type: 'application/json' }), webhookHandler)
+```
+
+* Must use `express.raw` (not express.json) because Stripe sends a signed payload.
+* You verify the signature with `stripe.webhooks.constructEvent(...)`.
+
+---
+
+✅ **3. Why use `app.post` vs `app.use`:**
+
+* `app.post('/api/webhook')` means "listen only to POST requests at this route".
+* `app.use` would run for *all* requests (GET/POST/etc.) and isn't specific.
+* Webhooks must be POST requests → so you use `app.post`.
+
+---
+
+✅ **4. Webhook URL in Stripe dashboard:**
+
+* Must be publicly accessible → so deploy your backend (e.g. Vercel).
+* In Stripe dashboard → Developers → Webhooks → add endpoint:
+
+```
+https://your-vercel-app.vercel.app/api/webhook
+```
+
+* This is where Stripe will notify payment status.
+
+---
+
+✅ **5. Local development tip:**
+
+* You can test webhooks locally using:
+
+```bash
+stripe listen --forward-to localhost:5000/api/webhook
+```
+
+---
+
+✅ **6. Frontend redirect after booking:**
+
+* After dispatching `bookSeats`, set `isRedirecting` to true.
+* Redirect with `window.location.href = res.url`.
+* Show a full-screen loader (`<FullScreenLoader />`) while redirecting.
+
+---
+
+✅ **7. Deployment gotcha you learned:**
+
+* File naming in git is case-sensitive; on Windows it can silently mismatch.
+* Use `git rm --cached` + re-add to fix casing (e.g., `User.js` vs `user.js`).
+
+---
+
+✅ **8. Stripe test mode vs live mode:**
+
+* When using test keys, Stripe Checkout clearly shows **"TEST MODE"**.
+* Production must use live keys.
+* No need to code change; switch keys in `.env`.
+
+---
+
+✅ **9. Success & cancel URLs:**
+
+* Stripe redirects user there after payment.
+* `success_url` should point to a loading or confirmation page.
+* Use the correct origin + path.
+
+---
+
+✅ **10. Booking flow insight:**
+
+* Create booking before payment to lock seats.
+* Mark booking as paid only after webhook fires.
+
+---
+
+## 🧠 **Extra note:**
+
+* You **don’t** need frontend to call the webhook.
+* Stripe calls it directly → backend listens & updates DB.
+
+
+
+-----------------------------------------------------------------------------------
+
+User                        Frontend                   Backend                        Stripe
+ |                             |                          |                             |
+ |  Select seats + time        |                          |                             |
+ |---------------------------> |                          |                             |
+ |                             |                          |                             |
+ |   Click "Proceed to        |                          |                             |
+ |   Checkout"                |                          |                             |
+ |                             |                          |                             |
+ |                             | dispatch(bookSeats)      |                             |
+ |                             |------------------------> |                             |
+ |                             |                          |  Check seats availability   |
+ |                             |                          |---------------------------->|
+ |                             |                          |                             |
+ |                             |                          |  Create Booking in DB       |
+ |                             |                          |                             |
+ |                             |                          |  Create Stripe Checkout     |
+ |                             |                          |  Session (pass bookingId)   |
+ |                             |                          |---------------------------->|
+ |                             |                          |                             |
+ |                             |                          | Stripe returns session.url  |
+ |                             |                          |<----------------------------|
+ |                             |                          |                             |
+ |                             | setIsRedirecting(true)   |                             |
+ |                             | window.location.href=    |                             |
+ |                             | res.url                  |                             |
+ |---------------------------> |                          |                             |
+ |                             |                          |                             |
+ |       Stripe Checkout      |                          |                             |
+ |<-------------------------->|                          |                             |
+ |                             |                          |                             |
+ | User pays                  |                          |                             |
+ |                             |                          |                             |
+ | Stripe triggers webhook    |                          |                             |
+ |--------------------------->| /api/webhook             |                             |
+ |                             |                          | Backend verifies signature  |
+ |                             |                          | Mark booking as paid        |
+ |                             |                          |                             |
+ |                             |                          |                             |
+ | Stripe redirects user      |                          |                             |
+ | to success_url             |                          |                             |
+ |--------------------------->| /loading/my-bookings     |                             |
+ |                             | show loading             |                             |
+ |                             | navigate to /my-bookings |                             |
+ |                             |------------------------> |                             |
+ |                             |                          | Fetch and show bookings     |
+ |                             |                          |                             |
+
+
+
+
+### 🧩Srtipe 
+
+#### ✅ 1️⃣ You added:
+
+```js
+app.use('/api/stripe', express.raw({type:'application/json'}), stripeWebhooks)
+```
+
+* You used `express.raw()` instead of `express.json()`.
+* Why? Because Stripe **requires the *raw* body** to verify the webhook signature.
+
+If you used `express.json()` earlier in your middleware stack, it would already consume & parse the request body → the raw body is then **lost** → Stripe can’t verify the signature → webhook fails.
+
+Using `express.raw({type:'application/json'})` ensures the `req.body` stays as a `Buffer` so Stripe can verify it.
+
+---
+
+#### ✅ 2️⃣ Your webhook controller:
+
+```js
+event=stripeInstance.webhooks.constructEvent(req.body, sig, process.env.STRIPE_SECRET_KEY)
+```
+
+* You’re using `constructEvent` to **verify the signature** that Stripe sends in header (`stripe_signature`).
+* This proves that the webhook call **really came from Stripe** (not someone faking it).
+
+---
+
+### ⚡ **Differences from normal `app.post('/api/webhook', ...)` with `express.json()`**
+
+|                             | Normal `express.json()`              | Stripe webhook (`express.raw()`) |
+| --------------------------- | ------------------------------------ | -------------------------------- |
+| Middleware                  | Parses JSON into JS object           | Keeps raw Buffer of body         |
+| Use in webhook verification | Can’t verify – raw body gone         | Required for `constructEvent`    |
+| Safety                      | ❌ Can't prove request is from Stripe | ✅ Can verify signature           |
+
+**Reason:** Stripe’s signature is a HMAC over the raw body.
+If you parse → stringify again → bytes change → signature check fails.
+
+---
+
+### 🧠 **Why you used `app.use` instead of `app.post`:(ultimately used post)**
+
+Strictly speaking, `app.post('/api/stripe',...)` would still work if the request is POST.
+`app.use(...)` just means “use this middleware for any method hitting /api/stripe”.
+
+> Best practice: prefer `app.post('/api/stripe', ...)` because Stripe sends POST requests.
+
+But your `app.use` also works because it covers all methods (though you only expect POST).
+
+---
+
+### 🛠 **Your webhook logic:**
+
+* Get `payment_intent.succeeded` event.
+* Use Stripe’s API to get the `session` tied to this intent (Stripe sends only the payment intent).
+* Read your `bookingId` from session’s metadata.
+* Update the booking in DB to `isPaid:true`.
+
+That part is **good**:
+Stripe doesn’t send your DB’s bookingId directly, so you store it in metadata → retrieve → update DB.
+
+---
+
+### ✅ **Summary:**
+
+* You switched to `express.raw()` to keep raw body → needed for Stripe signature verification.
+* Used `constructEvent` to verify it’s really Stripe.
+* You correctly read metadata and update DB.
+
+---

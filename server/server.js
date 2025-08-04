@@ -10,10 +10,17 @@ import showRouter from './routes/showRoutes.js';
 import bookingRouter from './routes/bookingRoutes.js';
 import adminRouter from './routes/adminRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import { stripeWebhooks } from './controllers/stripeWebhooks.js';
 const app=express();
 const port=3000;
+
+
 await connectDB();    
 //middle wares
+
+
+app.use('/api/stripe', express.raw({type:'application/json'}), stripeWebhooks) // this should be placed before express.json() middleware , cz the we need the data in raw format cz it containts signature
+
 
 app.use(express.json());    //json text/data to js object 
 app.use(cors());

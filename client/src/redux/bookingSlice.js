@@ -14,7 +14,8 @@ export const fetchOccupiedSeats =createAsyncThunk("booking/fetchOccupiedSeats",a
 
         try{
 
-            const token=getState().auth.token;
+            // const token=getState().auth.token;
+            const token= await window.Clerk.session.getToken();
             const res=await getOccupiedSeats(id,token);
 
             if(!res.success)
@@ -36,7 +37,8 @@ export const fetchOccupiedSeats =createAsyncThunk("booking/fetchOccupiedSeats",a
 export const bookSeats =createAsyncThunk("booking/bookSeats",async({showId,selectedSeats},{getState,rejectWithValue})=>{
 
         try{
-            const token=getState().auth.token;
+            // const token=getState().auth.token;
+              const token= await window.Clerk.session.getToken();
             const res=await bookSeatsApi({showId,selectedSeats},token);
             console.log("at book seats",res);
             

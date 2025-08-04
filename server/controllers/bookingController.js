@@ -1,6 +1,6 @@
 import Booking from "../models/Booking.js";
 import Show from "../models/Show.js"
-import { clerkClient } from "@clerk/express";
+import stripe from "stripe"
 //Function to check the availability of seats
 
 
@@ -62,11 +62,46 @@ export const createBooking =async(req,res)=>
         // It is a Mongoose Document instance — an object created by Mongoose that wraps your MongoDB data and adds many helper methods and features.
           showData.markModified('occupiedSeats');
           await showData.save();
-           
-          res.json({success:true,message:"Booking successful !"});
+
 
 
         //Stripe Gateway Intialize -here  `
+
+        const stripeInstance=new stripe(process.env.STRIPE_SECRET_KEY);
+
+        const line_items=[{
+            price_data:{
+              currency:'usd',
+              product_data:{
+                name:showData.movie.title
+              },
+              unit_amount:Math.floor(booking.amount)*100
+            },
+            quantity:1
+        }]
+
+
+        const session=await stripeInstance.checkout.sessions.create({
+          success_url:'${origin}/loading/my-bookings',
+          cancel_url:'${origin}/my-bookings',
+          line_items:line_items,
+          mode:'payment',
+          metadata:{
+            bookingId:booking._id.toString()
+          },
+          expires_at:Math.floor(Date.now()/1000)*30*60, //expires in 30 mins
+
+        })
+
+        booking.paymentLink=session.url;
+
+        await booking.save();
+
+
+           
+        res.json({success:true,url:session.url});
+
+
     }catch(error)
     {
 

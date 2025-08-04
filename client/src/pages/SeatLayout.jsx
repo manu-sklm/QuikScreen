@@ -57,6 +57,8 @@ const SeatLayout = () => {
       dispatch(bookSeats({showId:selectedTime.showId , selectedSeats}))
           .unwrap()
           .then((res)=>{
+
+            console.log("got responce ");
             window.location.href=res.url;
           })
           .catch((error)=>{

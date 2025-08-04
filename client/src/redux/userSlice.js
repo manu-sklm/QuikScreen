@@ -14,7 +14,8 @@ const initialState={
 export const fetchFavorites=createAsyncThunk("user/fetchFavorites",async(_,{getState,rejectWithValue})=>{
      try{ 
            
-           const token=getState().auth.token;
+          //  const token=getState().auth.token;
+           const token= await window.Clerk.session.getToken();
            const res=await getFavorites(token);
            if(!res.success) {
               return  rejectWithValue(res.message);
@@ -34,8 +35,8 @@ export const updateFavorites=createAsyncThunk("user/updateFavorite",async(id,{ge
 
      try{ 
            
-           const token=getState().auth.token;
-           
+          //  const token=getState().auth.token;
+             const token= await window.Clerk.session.getToken();
                            //api
            const res=await updateFavorite(id,token);
            if(!res.success) {
