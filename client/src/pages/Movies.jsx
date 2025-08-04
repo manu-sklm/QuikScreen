@@ -9,7 +9,6 @@ const Movies = () => {
 
   const {shows}=useSelector((state)=>state.show);
 
-  console.log(shows);
 
   return  shows.length>0 ?(
     <div className=' px-6 xl:px-44 lg:px-24  md:px-16 my-20 py-20 min-h-[80vh] overflow-hidden'>

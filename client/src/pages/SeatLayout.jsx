@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { ArrowRight, Clock } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useState } from 'react'
-import { assets, dummyDateTimeData, dummyShowsData } from '../assets/assets'
+import { assets } from '../assets/assets'
 
 import  isoTimeFormat from '../../lib/isoTimeFormat'
 import Loader from '../components/Loader'
@@ -57,8 +57,7 @@ const SeatLayout = () => {
       dispatch(bookSeats({showId:selectedTime.showId , selectedSeats}))
           .unwrap()
           .then((res)=>{
-             toast.success(res.message);
-            navigate("/my-bookings");
+            window.location.href=res.url;
           })
           .catch((error)=>{
             toast.error(error.message);
@@ -91,7 +90,7 @@ const SeatLayout = () => {
             return ( 
               <button key={seatId} onClick={()=>handleClick(seatId)} className={`size-8 rounded border border-primary/60 cursor-pointer
                ${selectedSeats.includes(seatId)&&"bg-primary text-white"}
-               ${occupiedSeats.includes(seatId)&&"bg-primary/50 "}`
+               ${occupiedSeats.includes(seatId)&&" opacity-50 "}`
                } >
                     {seatId}
               </button>
@@ -111,6 +110,9 @@ const SeatLayout = () => {
    <div className=' relative flex flex-col md:flex-row  px-6 md:px-16 lg:px-40 py-30 md:pt-50'>
         {/* <BlurCircle top='10' right='-100'/> */}
 
+
+
+   
         {/* timings */}
         <div  className='w-60 flex flex-col   py-10  text-sm border border-primary/20  bg-primary/10 rounded-lg h-max md:sticky md:top-30' >
 

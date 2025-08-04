@@ -17,7 +17,7 @@ import { image_base_url } from '../config/constants';
   const {loading,error,bookings}=useSelector((state)=>state.user);
   const dispatch=useDispatch();
 
-  console.log("bookings: ",bookings);
+  // console.log("bookings: ",bookings);
 
   useEffect(()=>{
       if(user)
@@ -41,7 +41,7 @@ import { image_base_url } from '../config/constants';
 
             <div className='flex flex-col md:flex-row '>
                 <img src={image_base_url+item.show.movie.poster_path} alt="" className='md:max-w-45 h-auto aspect-video object-cover object-center rounded'/>
-
+9
                 <div className='flex flex-col   p-4'>
                   <p className='text-xl font-semibold'>{item.show.movie.title}</p>
                   <p className='text-gray-400 text-sm'>{timeFormat(item.show.movie.runtime)}</p>

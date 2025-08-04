@@ -17,6 +17,7 @@ import Dashboard from './pages/admin/Dashboard'
 import Addshows from './pages/admin/AddShows'
 import ListBookings from './pages/admin/ListBookings'
 import ListShows from './pages/admin/ListShows'
+import LoadingBookings from './components/LoadingBookings'
 
 
 
@@ -103,6 +104,8 @@ const App = () => {
         <Route path='/theaters' element={<Movies/>} />
         <Route path='/releases' element={<Movies/>} />
         <Route path='/favorites' element={<Favorites/>} />
+
+        <Route path="/loading/my-bookings" element={<LoadingBookings />} />
 
         
          <Route path='/admin' element={ user ? <Layout /> : 
