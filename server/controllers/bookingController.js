@@ -97,7 +97,6 @@ export const createBooking =async(req,res)=>
 
         })
 
-          console.log("session created with url",session.url);
 
               
                         booking.paymentLink = session.url;
